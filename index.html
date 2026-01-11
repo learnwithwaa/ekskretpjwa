@@ -1,0 +1,1243 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>ExcretiX Game</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#cfe3cf;
+      --card:#e8f6e6;
+      --text:#1f3b28;
+      --primary:#2f5a3a;
+      --primary-2:#3f7a4f;
+      --outline:rgba(47,90,58,.28);
+      --shadow:0 16px 36px rgba(15,35,22,.15);
+      --shadow-soft:0 10px 22px rgba(15,35,22,.12);
+      --r-xl:28px;
+      --r-lg:22px;
+      --container:1120px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:"Poppins",system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      min-height:100vh;
+      overflow-x:hidden;
+    }
+    .container{width:min(var(--container),calc(100% - 48px));margin:0 auto}
+    .text-center{text-align:center}
+    .flex{display:flex;gap:12px}
+    .flex-between{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+    .muted{color:rgba(31,59,40,.65);font-weight:800}
+
+    /* cloud */
+    .cloud{
+      position:absolute;width:190px;height:62px;background:rgba(255,255,255,.85);
+      border-radius:999px;filter:drop-shadow(0 10px 14px rgba(0,0,0,.08));opacity:.9;
+    }
+    .cloud:before,.cloud:after{content:"";position:absolute;background:rgba(255,255,255,.85);border-radius:999px}
+    .cloud:before{width:78px;height:78px;left:26px;top:-32px}
+    .cloud:after{width:92px;height:92px;right:22px;top:-42px}
+
+    /* buttons */
+    .btn{
+      border:0;cursor:pointer;font-weight:900;letter-spacing:.4px;
+      transition:transform .18s ease, box-shadow .18s ease, background .18s ease, opacity .18s ease;
+      user-select:none;
+    }
+    .btn:active{transform:translateY(1px)}
+    .btn-pill{padding:12px 22px;border-radius:999px}
+    .btn-primary{background:var(--primary);color:#fff;box-shadow:0 10px 18px rgba(47,90,58,.22)}
+    .btn-primary:hover{background:var(--primary-2);transform:translateY(-1px)}
+    .btn-ghost{background:transparent;color:var(--text);border:2px solid var(--outline)}
+    .btn-ghost:hover{background:rgba(255,255,255,.35);box-shadow:var(--shadow-soft);transform:translateY(-1px)}
+    .btn-danger{background:#ef4444;color:#fff;box-shadow:0 10px 18px rgba(239,68,68,.18)}
+    .btn-danger:hover{background:#dc2626;transform:translateY(-1px)}
+
+    /* HOME */
+    .home{
+      min-height:100vh;position:relative;display:flex;align-items:center;padding:36px 0;
+      background:
+        radial-gradient(1200px 600px at 30% 10%, rgba(255,255,255,.40), transparent 60%),
+        radial-gradient(900px 600px at 90% 20%, rgba(255,255,255,.28), transparent 55%),
+        var(--bg);
+    }
+
+    /* (REVISI) biar posisi gak kejauhan + lebih tengah */
+    .hero{
+      display:grid;
+      grid-template-columns:max-content max-content;
+      justify-content: center;
+      gap:50px;
+      align-items:center;
+      transform: translateX(25px);
+    }
+
+    .kicker{
+      font-weight:900;color:rgba(31,59,40,.75);letter-spacing:.8px;
+      text-transform:uppercase;font-size:14px;margin-bottom:10px;
+    }
+    .hero h1{
+      font-size:clamp(52px,6vw,92px);
+      line-height:.95;font-weight:900;letter-spacing:-1px;margin-bottom:18px;
+    }
+    .start{
+      display:inline-flex;align-items:center;justify-content:center;
+      padding:10px 28px;border-radius:999px;border:3px solid rgba(47,90,58,.22);
+      background:rgba(255,255,255,.20);color:rgba(31,59,40,.65);
+      font-weight:900;letter-spacing:2px;text-transform:uppercase;font-size:14px;
+      box-shadow:0 16px 30px rgba(15,35,22,.10);
+    }
+    .start:hover{background:rgba(255,255,255,.32);transform:translateY(-1px)}
+
+    /* map illus */
+    .hero-right{
+        display:flex;
+        justify-content:flex-start
+    } /* (REVISI) cover ke tengah */
+
+    .map-illus{
+      width:min(520px,100%);aspect-ratio:16/9;position:relative;border-radius:22px;
+      background:
+        radial-gradient(140px 90px at 20% 25%, rgba(255,255,255,.55), transparent 70%),
+        radial-gradient(160px 100px at 70% 35%, rgba(255,255,255,.38), transparent 72%),
+        linear-gradient(180deg,#c7dfc6,#b6d3b5);
+      box-shadow:var(--shadow);overflow:hidden;
+    }
+    .scroll{
+      position:absolute;inset:14px;border-radius:18px;
+      background:linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,.10));
+      border:2px solid rgba(47,90,58,.18);overflow:hidden;
+    }
+    .path{position:absolute;inset:0;opacity:.55}
+    .pin{
+      position:absolute;width:54px;height:54px;border-radius:999px;display:grid;place-items:center;
+      background:#1f5a39;box-shadow:0 14px 24px rgba(0,0,0,.18);
+      border:4px solid rgba(255,255,255,.65);
+    }
+    .pin span{font-size:22px;color:#fff}
+    .pin.one{left:18%;top:48%}
+    .pin.two{left:52%;top:26%}
+    .pin.three{left:66%;top:60%;background:#214c34}
+    .kid{
+      position:absolute;right:18px;bottom:10px;width:120px;height:180px;border-radius:18px;
+      background:rgba(255,255,255,.28);border:2px solid rgba(47,90,58,.16);
+      display:flex;align-items:center;justify-content:center;box-shadow:0 18px 30px rgba(15,35,22,.12);
+    }
+    .kid .emo{font-size:70px}
+
+    /* (REVISI) COVER BULAT + LEBIH KECIL */
+    .cover-wrap{
+      width:360px;
+      height:360px;
+      border-radius:50%;
+      overflow:hidden;
+      box-shadow:var(--shadow);
+      background:rgba(255,255,255,.18);
+      border:2px solid rgba(47,90,58,.14);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .cover-img{
+      width:100%;
+      height:100%;
+      object-fit:cover;   /* biar kepotong rapi jadi bulat */
+      display:block;
+    }
+
+    /* Pages */
+    .page{
+      min-height:100vh;padding:34px 0 44px;
+      background:
+        radial-gradient(900px 500px at 20% 0%, rgba(255,255,255,.35), transparent 60%),
+        radial-gradient(800px 540px at 90% 20%, rgba(255,255,255,.25), transparent 58%),
+        var(--bg);
+    }
+    .page-title{
+      text-align:center;font-weight:900;letter-spacing:.8px;color:rgba(31,59,40,.80);
+      margin:8px 0 26px;font-size:clamp(34px,3.5vw,52px);text-transform:uppercase;
+    }
+
+    /* MENU cards */
+    .menu-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:22px}
+    .menu-card{
+      background:var(--card);border-radius:var(--r-xl);box-shadow:var(--shadow-soft);
+      border:2px solid rgba(47,90,58,.10);
+      padding:26px 18px;min-height:320px;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+      transition:transform .18s ease, box-shadow .18s ease;
+      cursor:pointer;
+    }
+    .menu-card:hover{transform:translateY(-6px);box-shadow:var(--shadow)}
+    .menu-card h3{font-size:26px;font-weight:900;margin-bottom:10px;color:rgba(31,59,40,.92)}
+    .menu-card p{color:rgba(31,59,40,.62);font-weight:800;max-width:240px;line-height:1.6;margin-bottom:18px}
+    .menu-card .cta{
+      background:var(--primary);color:#fff;padding:10px 18px;border-radius:14px;
+      font-weight:900;letter-spacing:.6px;box-shadow:0 10px 16px rgba(47,90,58,.18);
+    }
+    .menu-card .cta:hover{background:var(--primary-2);transform:translateY(-1px)}
+
+    .home-back{display:flex;justify-content:center;margin-top:28px}
+    .btn-home{
+      padding:12px 34px;border-radius:999px;background:rgba(255,255,255,.22);
+      border:3px solid rgba(47,90,58,.22);color:rgba(31,59,40,.62);
+      font-weight:900;letter-spacing:3px;text-transform:uppercase;box-shadow:0 18px 30px rgba(15,35,22,.10);
+    }
+    .btn-home:hover{background:rgba(255,255,255,.32);transform:translateY(-1px)}
+
+    .panel{
+      background:rgba(255,255,255,.40);
+      border:2px solid rgba(47,90,58,.14);
+      border-radius:var(--r-xl);
+      box-shadow:var(--shadow-soft);
+      padding:26px;
+      backdrop-filter:blur(6px);
+    }
+    .panel h2{margin-bottom:10px;font-weight:900;letter-spacing:.6px;color:rgba(31,59,40,.92);font-size:34px}
+    .info-box{
+      background:rgba(47,90,58,.10);
+      border:2px solid rgba(47,90,58,.14);
+      border-radius:var(--r-lg);
+      padding:14px 16px;
+      color:rgba(31,59,40,.82);
+      margin-top:14px;
+      font-weight:900;
+    }
+    .hint{
+      margin-top:10px;
+      border-radius:18px;
+      padding:12px 14px;
+      font-weight:900;
+      display:none;
+    }
+    .hint.ok{display:block;background:rgba(34,197,94,.15);border:2px solid rgba(34,197,94,.25);color:rgba(21,128,61,.95)}
+    .hint.bad{display:block;background:rgba(239,68,68,.12);border:2px solid rgba(239,68,68,.22);color:rgba(185,28,28,.95)}
+
+    label{font-weight:900;color:rgba(31,59,40,.85)}
+    select, input, textarea{
+      width:100%;margin-top:8px;padding:12px 14px;border-radius:16px;
+      border:2px solid rgba(47,90,58,.18);
+      background:rgba(255,255,255,.60);
+      outline:none;font-size:16px;color:rgba(31,59,40,.92);
+      font-family:inherit;
+    }
+    select:focus, input:focus, textarea:focus{
+      border-color:rgba(47,90,58,.35);
+      box-shadow:0 0 0 5px rgba(47,90,58,.12);
+    }
+    .form-group{margin-bottom:16px}
+
+    /* table */
+    table{width:100%;border-collapse:collapse;overflow:hidden;border-radius:18px}
+    th,td{padding:14px 12px;border-bottom:1px solid rgba(31,59,40,.12)}
+    th{background:rgba(47,90,58,.88);color:#fff;font-weight:900;letter-spacing:.4px;text-align:left}
+    tbody tr{background:rgba(255,255,255,.55)}
+    tbody tr:nth-child(even){background:rgba(255,255,255,.42)}
+
+    /* toast */
+    .toast{
+      position:fixed;top:18px;left:50%;transform:translateX(-50%);
+      background:rgba(47,90,58,.92);color:#fff;padding:14px 18px;border-radius:14px;
+      box-shadow:0 14px 24px rgba(0,0,0,.18);z-index:9999;font-weight:900;letter-spacing:.3px;
+      text-align:center;min-width:min(520px,calc(100% - 40px));
+    }
+
+    /* MODAL LOGIN GURU */
+    .modal-backdrop{
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 35, 22, .35);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      padding: 18px;
+    }
+    .modal{
+      width: min(520px, 100%);
+      background: rgba(255,255,255,.78);
+      border: 2px solid rgba(47,90,58,.18);
+      border-radius: var(--r-xl);
+      box-shadow: var(--shadow);
+      padding: 22px 22px 18px;
+    }
+    .modal .icon{
+      font-size: 54px;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .modal .title{
+      text-align: center;
+      font-weight: 900;
+      letter-spacing: .6px;
+      color: rgba(31,59,40,.92);
+      font-size: 28px;
+      margin-bottom: 6px;
+    }
+
+    /* Gambar peta */
+    .map-image-wrap{
+      margin-top:16px;
+      border-radius:22px;
+      overflow:hidden;
+      border:2px solid rgba(47,90,58,.18);
+      box-shadow:var(--shadow);
+      background:rgba(255,255,255,.28);
+    }
+    .map-image{
+      width:100%;
+      height:auto;
+      display:block;
+    }
+
+    /* responsive */
+    @media (max-width:980px){
+      .hero{grid-template-columns:1fr}
+      .hero-right{justify-content:center}
+      .menu-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
+    @media (max-width:560px){
+      .menu-grid{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <script>
+    // ===============================
+    // 1) KONFIGURASI GAME (EDIT DI SINI)
+    // ===============================
+    const GROUP_OPTIONS = Array.from({length: 10}, (_, i) => `Kelompok ${i+1}`);
+
+    const TOPIC_RULES = {
+      ginjal: { minMatch: 2, keywords: ["filtrasi","glomerulus","nefron","reabsorpsi","augmentasi","urea","urin","osmoregulasi","air","garam"] },
+      hati:   { minMatch: 2, keywords: ["detoksifikasi","urea","empedu","bilirubin","amonia","metabolisme","racun","zat berbahaya"] },
+      paru:   { minMatch: 1, keywords: ["karbon dioksida","co2","uap air","pernapasan","alveolus"] },
+      kulit:  { minMatch: 1, keywords: ["keringat","kelenjar keringat","urea","garam","air","termoregulasi","suhu"] }
+    };
+
+    // ===============================
+    // 2) LOGIN GURU
+    // ===============================
+    const TEACHER_USERNAME = 'admin';
+    const TEACHER_PASSWORD = 'admin123';
+    const TEACHER_SESSION_KEY = 'excretix_teacher_session';
+
+    // ===============================
+    // 3) STORAGE KEY
+    // ===============================
+    const STORE_GAME_KEY = 'excretix_v2_game';
+
+    // ===============================
+    // 4) STATE
+    // ===============================
+    let currentPage = 'home';
+    let selectedTopic = null;
+    let topicStartTime = null;
+
+    // (REVISI) rank asal dari mana
+    let rankFrom = 'menu';          // 'menu' atau 'answer'
+
+    let isAdmin = false;
+
+    let gameState = { groups: {} };
+
+    const topics = [
+      { id: 'ginjal', name: 'Ginjal', icon: '🫘' },
+      { id: 'hati', name: 'Hati', icon: '🫀' },
+      { id: 'paru', name: 'Paru-paru', icon: '🫁' },
+      { id: 'kulit', name: 'Kulit', icon: '🤲' }
+    ];
+
+    // ===============================
+    // 5) UTIL
+    // ===============================
+    function escapeHtml(str){
+      return String(str)
+        .replaceAll('&','&amp;')
+        .replaceAll('<','&lt;')
+        .replaceAll('>','&gt;')
+        .replaceAll('"','&quot;')
+        .replaceAll("'","&#039;");
+    }
+
+    function showToast(message){
+      const t = document.createElement('div');
+      t.className = 'toast';
+      t.textContent = message;
+      document.body.appendChild(t);
+      setTimeout(()=>t.remove(), 1600);
+    }
+
+    function normalizeText(text){
+      return String(text || '')
+        .toLowerCase()
+        .normalize('NFKD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9\s]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    function evaluateAnswer(topicId, answer){
+      const rules = TOPIC_RULES[topicId];
+      if(!rules) return { ok:false, matched:[], needed:1, minMatch:1 };
+
+      const norm = normalizeText(answer);
+      const matched = [];
+
+      for(const kw of rules.keywords){
+        const needle = normalizeText(kw);
+        if(needle && norm.includes(needle)){
+          matched.push(kw);
+        }
+      }
+
+      const minMatch = rules.minMatch || 1;
+      return { ok: matched.length >= minMatch, matched, needed: Math.max(0, minMatch - matched.length), minMatch };
+    }
+
+    function formatMs(ms){
+      const s = Math.round(ms/1000);
+      const m = Math.floor(s/60);
+      const r = s % 60;
+      return m>0 ? `${m}m ${r}s` : `${r}s`;
+    }
+
+    // ===============================
+    // 6) STORAGE
+    // ===============================
+    function loadGame(){
+      const raw = localStorage.getItem(STORE_GAME_KEY);
+      if(raw){
+        try{
+          gameState = JSON.parse(raw);
+          if(!gameState.groups) gameState = { groups:{} };
+        }catch{
+          gameState = { groups:{} };
+        }
+      }
+    }
+
+    function saveGame(){
+      localStorage.setItem(STORE_GAME_KEY, JSON.stringify(gameState));
+    }
+
+    // ===============================
+    // 7) SESSION GURU
+    // ===============================
+    function loadTeacherSession(){
+      isAdmin = localStorage.getItem(TEACHER_SESSION_KEY) === 'true';
+    }
+    function setTeacherSession(on){
+      isAdmin = !!on;
+      localStorage.setItem(TEACHER_SESSION_KEY, on ? 'true' : 'false');
+    }
+    function teacherLogout(){
+      isAdmin = false;
+      localStorage.removeItem(TEACHER_SESSION_KEY);
+      showToast('👋 Logout berhasil');
+      navigateTo('role');
+    }
+
+    // ===============================
+    // 8) NAVIGATE + GUARD
+    // ===============================
+    function navigateTo(page, data=null){
+      if(page === 'admin' && !isAdmin){
+        showToast('Akses guru ditolak. Silakan login.');
+        currentPage = 'role';
+        renderPage();
+        return;
+      }
+
+      currentPage = page;
+
+      // (REVISI) track asal masuk Rank
+      if(page === 'ranking'){
+        rankFrom = (data && data.from) ? data.from : 'menu';
+      }
+
+      if(data && data.topic) selectedTopic = data.topic;
+      if(page === 'answer') topicStartTime = Date.now();
+      renderPage();
+
+      // (REVISI) saat buka halaman answer, langsung lock UI sesuai kelompok/topik
+      if(page === 'answer') setTimeout(updateAnswerLockUI, 0);
+
+      window.scrollTo({top:0, behavior:"smooth"});
+    }
+
+    // ===============================
+    // 9) RANKING
+    // ===============================
+    function computeRanking(){
+      const rows = [];
+
+      for(const [groupName, g] of Object.entries(gameState.groups)){
+        const topicsDone = Object.values(g.topics || {}).filter(x => x && x.correct).length;
+        const totalCorrect = g.total_correct || 0;
+        const totalTime = g.total_time || 0;
+        rows.push({
+          group: groupName,
+          topicsDone,
+          totalCorrect,
+          totalTime,
+          last: g.last_updated || 0
+        });
+      }
+
+      rows.sort((a,b)=>{
+        if(b.totalCorrect !== a.totalCorrect) return b.totalCorrect - a.totalCorrect;
+        if(a.totalTime !== b.totalTime) return a.totalTime - b.totalTime;
+        return (b.last - a.last);
+      });
+
+      return rows;
+    }
+
+    // ===============================
+    // 10) RENDER
+    // ===============================
+    function renderPage(){
+      const app = document.getElementById('app');
+      let content = '';
+
+      if(currentPage === 'home'){
+        content = `
+          <section class="home">
+            <div class="cloud" style="left: 8%; top: 10%; transform: scale(.85)"></div>
+            <div class="cloud" style="left: 42%; top: 18%; transform: scale(.62)"></div>
+            <div class="cloud" style="right: 8%; top: 8%; transform: scale(.95)"></div>
+
+            <div class="container">
+              <div class="hero">
+                <div>
+                  <div class="kicker">HALO .... SELAMAT DATANG DI</div>
+                  <h1>ExcretiX</h1>
+                  <button class="start btn" onclick="navigateTo('role')">MULAI</button>
+                </div>
+
+                <div class="hero-right">
+                  <!-- (REVISI) cover: bulat + lebih kecil + posisi tengah -->
+                  <!-- Taruh file: cover.png sefolder dengan allmenu.html -->
+                  <div class="cover-wrap">
+                    <img class="cover-img" src="cover.png" alt="Cover ExcretiX">
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </section>
+        `;
+      }
+
+      else if(currentPage === 'role'){
+        content = `
+          <section class="page">
+            <div class="cloud" style="left: 10%; top: 10%; transform: scale(.75)"></div>
+            <div class="cloud" style="right: 10%; top: 14%; transform: scale(.9)"></div>
+
+            <div class="container">
+              <h1 class="page-title">PILIH AKSES</h1>
+
+              <div class="panel" style="max-width:980px; margin:0 auto;">
+                <div class="text-center" style="font-weight:900; color:rgba(31,59,40,.7); margin-bottom:16px;">
+                  Login sebagai <b>Siswa</b> atau <b>Guru</b>.
+                </div>
+
+                <div class="menu-grid" style="grid-template-columns: repeat(2, minmax(0, 1fr));">
+                  <div class="menu-card" onclick="navigateTo('menu')">
+                    <div style="font-size:64px; margin-bottom:12px;">🧑‍🎓</div>
+                    <h3>SISWA</h3>
+                    <p>Mulai petualangan, pilih topik, dan jawab tantangan.</p>
+                    <button class="btn cta">MAIN</button>
+                  </div>
+
+                  <div class="menu-card" onclick="${isAdmin ? "navigateTo('admin')" : "showTeacherLogin()"}">
+                    <div style="font-size:64px; margin-bottom:12px;">👩‍🏫</div>
+                    <h3>GURU</h3>
+                    <p>${isAdmin ? "Masuk ke dashboard guru." : "Masuk menggunakan akun guru."}</p>
+                    <button class="btn cta">${isAdmin ? "Dashboard" : "MASUK"}</button>
+                  </div>
+                </div>
+
+                <div class="text-center" style="margin-top:18px;">
+                  <button class="btn btn-pill btn-ghost" onclick="navigateTo('home')">BERANDA</button>
+                </div>
+              </div>
+            </div>
+          </section>
+        `;
+      }
+
+      else if(currentPage === 'menu'){
+        content = `
+          <section class="page">
+            <div class="container">
+              <h1 class="page-title">MENU</h1>
+
+              <div class="menu-grid">
+                <div class="menu-card" onclick="navigateTo('rules')">
+                  <h3>Petunjuk</h3>
+                  <p>Petunjuk bermain agar petualanganmu lebih lancar.</p>
+                  <button class="btn cta">Detail</button>
+                </div>
+
+                <div class="menu-card" onclick="navigateTo('maps')">
+                  <h3>Peta</h3>
+                  <p>Peta petunjuk untuk menemukan card permasalahan.</p>
+                  <button class="btn cta">Lihat</button>
+                </div>
+
+                <div class="menu-card" onclick="navigateTo('topics')">
+                  <h3>Topik</h3>
+                  <p>Pilih topik ekskresi dan selesaikan satu per satu.</p>
+                  <button class="btn cta">Main</button>
+                </div>
+
+                <!-- (REVISI) Rank dari menu harus from:menu -->
+                <div class="menu-card" onclick="navigateTo('ranking',{from:'menu'})">
+                  <h3>Peringkat</h3>
+                  <p>Lihat peringkat dari total ketepatan dan waktu.</p>
+                  <button class="btn cta">Lihat</button>
+                </div>
+              </div>
+
+              <div class="home-back">
+                <button class="btn btn-home" onclick="navigateTo('home')">MENU</button>
+              </div>
+            </div>
+          </section>
+        `;
+      }
+
+      else if(currentPage === 'rules'){
+        content = `
+          <section class="page">
+            <div class="container">
+              <h1 class="page-title">PETUNJUK</h1>
+
+              <div class="panel" style="max-width:860px; margin:0 auto;">
+                <h2>Cara Bermain</h2>
+
+                <div style="line-height:1.9; font-weight:800; color:rgba(31,59,40,.78);">
+                  <p style="margin-bottom:12px;">📌 Buka <b>Peta</b> → cari card permasalahan (fisik) → lalu jawab di <b>Topics</b>.</p>
+                  <p style="margin-bottom:12px;">📌 Pilih topik → pilih kelompok → tulis jawaban.</p>
+                  <p style="margin-bottom:12px;">📌 Jawaban panjang boleh, yang penting mengandung <b>kata kunci</b> penting.</p>
+                  <p style="margin-bottom:12px;">📌 Kalau jawaban belum tepat, kamu bisa <b>mengulang</b> sampai benar.</p>
+                  <p style="margin-bottom:12px;">📌 Setelah benar, kamu masuk ke <b>Rank</b>. Lanjutkan topik berikutnya.</p>
+                  <p style="margin-bottom:12px;">🏆 Rank utama dihitung dari <b>total topik benar</b> dan <b>total waktu pengerjaan</b>.</p>
+
+                  <div class="info-box">💡 Tips: Kerjakan cepat & tepat agar total waktu lebih kecil.</div>
+                </div>
+
+                <div class="text-center" style="margin-top:18px;">
+                  <button class="btn btn-pill btn-primary" onclick="navigateTo('menu')">MENU</button>
+                </div>
+              </div>
+            </div>
+          </section>
+        `;
+      }
+
+      else if(currentPage === 'maps'){
+        content = `
+          <section class="page">
+            <div class="container">
+              <h1 class="page-title">Peta</h1>
+
+              <div class="panel" style="max-width:980px; margin:0 auto;">
+                <h2>Peta Petunjuk</h2>
+                <div class="muted" style="margin-top:4px;">
+                  Gunakan peta untuk menemukan card permasalahan (fisik). Setelah itu, jawab di menu <b>Topics</b>.
+                </div>
+
+                <div class="map-image-wrap">
+                  <img class="map-image" src="assets/peta.png" alt="Peta Petunjuk">
+                </div>
+
+                <div class="text-center" style="margin-top:18px;">
+                  <button class="btn btn-pill btn-primary" onclick="navigateTo('menu')">MENU</button>
+                </div>
+              </div>
+            </div>
+          </section>
+        `;
+      }
+
+      else if(currentPage === 'topics'){
+        content = `
+          <section class="page">
+            <div class="container">
+              <h1 class="page-title">TOPIK</h1>
+
+              <div class="panel">
+                <div class="muted" style="text-align:center; margin-bottom:14px;">
+                  Selesaikan topik satu per satu. Setiap topik benar akan menambah skor total.
+                </div>
+
+                <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px;">
+                  ${topics.map(t=>`
+                    <div class="menu-card" style="min-height:220px" onclick="navigateTo('answer',{topic:'${t.id}'})">
+                      <div style="font-size:58px;margin-bottom:10px">${t.icon}</div>
+                      <h3 style="margin-bottom:6px">${t.name}</h3>
+                      <p style="margin-bottom:14px">Klik untuk mulai mengerjakan.</p>
+                      <button class="btn cta">Mulai</button>
+                    </div>
+                  `).join('')}
+                </div>
+
+                <div class="text-center" style="margin-top:18px;">
+                  <button class="btn btn-pill btn-primary" onclick="navigateTo('menu')">MENU</button>
+                </div>
+              </div>
+            </div>
+          </section>
+        `;
+      }
+
+      else if(currentPage === 'answer'){
+        const t = topics.find(x=>x.id===selectedTopic) || {name:'', icon:'📌'};
+        const rule = TOPIC_RULES[selectedTopic] || {minMatch:1, keywords:[]};
+
+        content = `
+          <section class="page">
+            <div class="container">
+              <h1 class="page-title">Topik: ${t.name}</h1>
+
+              <div class="panel" style="max-width:980px; margin:0 auto;">
+                <div class="text-center" style="margin-bottom:10px;">
+                  <div style="font-size:64px">${t.icon}</div>
+                  <div class="muted">Tulis jawaban terbaik — cepat & tepat = skor tinggi.</div>
+                </div>
+
+                <form onsubmit="submitTopic(event); return false;">
+                  <div class="form-group">
+                    <label>Nama Kelompok</label>
+                    <!-- (REVISI) onchange untuk lock UI -->
+                    <select id="group_select" required onchange="updateAnswerLockUI()">
+                      <option value="" disabled selected>Pilih Kelompok...</option>
+                      ${GROUP_OPTIONS.map(g => `<option value="${escapeHtml(g)}">${escapeHtml(g)}</option>`).join('')}
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label>Jawaban Permasalahan</label>
+                    <textarea id="answer" rows="9" placeholder="Tulis jawaban di sini..." required></textarea>
+                  </div>
+
+                  <div class="info-box">
+                    📝 Sistem akan mengecek kata kunci. Minimal cocok: <b>${rule.minMatch || 1}</b> kata kunci.
+                  </div>
+
+                  <div id="hintBox" class="hint"></div>
+
+                  <div class="flex" style="margin-top:16px;">
+                    <button id="submitBtn" type="submit" class="btn btn-pill btn-primary" style="flex:1;">KOREKSI</button>
+                    <button type="button" class="btn btn-pill btn-ghost" onclick="navigateTo('topics')" style="flex:1;">TOPIK</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </section>
+        `;
+      }
+
+      else if(currentPage === 'ranking'){
+        const rows = computeRanking();
+        const totalTopics = topics.length;
+
+        content = `
+          <section class="page">
+            <div class="container">
+              <h1 class="page-title">RANK</h1>
+
+              <div class="panel">
+                ${rows.length === 0 ? `
+                  <div class="text-center" style="padding:34px 0;">
+                    <div style="font-size:56px;">📊</div>
+                    <div style="font-size:18px;font-weight:900;color:rgba(31,59,40,.75);margin-top:8px;">
+                      Belum ada data. Mulai kerjakan topik!
+                    </div>
+                    <div style="margin-top:16px;">
+                      <button class="btn btn-pill btn-primary" onclick="navigateTo('topics')">Mulai Topik</button>
+                    </div>
+                  </div>
+                ` : `
+                  <div class="info-box" style="margin-top:0;">
+                    🏆 Urutan: <b>Topik benar terbanyak</b> → <b>Total waktu tercepat</b>
+                  </div>
+
+                  <div style="overflow:auto; margin-top:14px;">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th style="width:110px;">Rank</th>
+                          <th>Kelompok</th>
+                          <th style="width:170px;">Topik Selesai</th>
+                          <th style="width:150px;">Total Benar</th>
+                          <th style="width:170px;">Total Waktu</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        ${rows.map((r, i) => {
+                          const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+                          return `
+                            <tr>
+                              <td><b>${medal} ${i+1}</b></td>
+                              <td style="font-weight:900;">${escapeHtml(r.group)}</td>
+                              <td><b>${r.topicsDone}/${totalTopics}</b></td>
+                              <td><b>${r.totalCorrect}</b></td>
+                              <td><b>${formatMs(r.totalTime)}</b></td>
+                            </tr>
+                          `;
+                        }).join('')}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <!-- (REVISI) tombol berbeda sesuai asal rank -->
+                  <div class="text-center" style="margin-top:18px;">
+                    ${
+                      rankFrom === 'answer'
+                        ? `
+                          <button class="btn btn-pill btn-primary" onclick="navigateTo('topics')">Lanjut Topik</button>
+                          <button class="btn btn-pill btn-ghost" style="margin-left:10px;" onclick="navigateTo('menu')">← Menu</button>
+                        `
+                        : `
+                          <button class="btn btn-pill btn-primary" onclick="navigateTo('menu')">← Menu</button>
+                        `
+                    }
+                  </div>
+                `}
+              </div>
+            </div>
+          </section>
+        `;
+      }
+
+      else if(currentPage === 'admin'){
+        const rows = computeRanking();
+
+        content = `
+          <section class="page">
+            <div class="container">
+              <div class="flex-between" style="margin-bottom:14px;">
+                <h1 class="page-title" style="margin:0;">DASHBOARD GURU</h1>
+
+                <div class="flex" style="justify-content:flex-end;">
+                  <button class="btn btn-pill btn-ghost" onclick="downloadExcel()" title="Download Excel">⬇️ Excel</button>
+                  <button class="btn btn-pill btn-danger" onclick="resetAllData()" title="Reset semua data">🔄 Reset</button>
+                  <button class="btn btn-pill btn-danger" onclick="teacherLogout()">🚪 Logout</button>
+                </div>
+              </div>
+
+              <div class="panel">
+                <h2 style="margin-bottom:6px;">Data Kelompok</h2>
+                <div class="muted" style="margin-bottom:14px;">Menampilkan ringkasan dan jawaban tiap topik per kelompok.</div>
+
+                ${rows.length === 0 ? `
+                  <div class="text-center" style="padding:34px 0;">
+                    <div style="font-size:56px;">📝</div>
+                    <div style="font-size:18px;font-weight:900;color:rgba(31,59,40,.75);margin-top:8px;">
+                      Belum ada jawaban masuk.
+                    </div>
+                  </div>
+                ` : `
+                  <div style="overflow:auto;">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th style="width:90px;">Rank</th>
+                          <th>Kelompok</th>
+                          <th style="width:170px;">Topik Selesai</th>
+                          <th style="width:140px;">Total Waktu</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        ${rows.map((r,i)=>`
+                          <tr>
+                            <td><b>${i+1}</b></td>
+                            <td style="font-weight:900;">${escapeHtml(r.group)}</td>
+                            <td><b>${r.topicsDone}/${topics.length}</b></td>
+                            <td><b>${formatMs(r.totalTime)}</b></td>
+                          </tr>
+                        `).join('')}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div style="margin-top:18px;">
+                    ${rows.map((r)=>{
+                      const g = gameState.groups[r.group];
+                      const perTopic = g.topics || {};
+                      return `
+                        <div class="panel" style="margin-top:14px; background:rgba(255,255,255,.50);">
+                          <div class="flex-between">
+                            <div style="font-weight:900; font-size:18px;">${escapeHtml(r.group)}</div>
+                            <div class="muted">Benar: ${g.total_correct || 0} • Waktu: ${formatMs(g.total_time || 0)}</div>
+                          </div>
+
+                          <div style="margin-top:12px; display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:12px;">
+                            ${topics.map(t=>{
+                              const entry = perTopic[t.id];
+                              if(!entry){
+                                return `
+                                  <div style="border:2px solid rgba(47,90,58,.14); border-radius:18px; padding:12px; background:rgba(232,246,230,.65);">
+                                    <div style="font-weight:900;">${t.icon} ${t.name}</div>
+                                    <div class="muted" style="margin-top:6px;">Belum dikerjakan</div>
+                                  </div>
+                                `;
+                              }
+                              return `
+                                <div style="border:2px solid rgba(47,90,58,.14); border-radius:18px; padding:12px; background:rgba(232,246,230,.65);">
+                                  <div style="font-weight:900;">${t.icon} ${t.name}</div>
+                                  <div class="muted" style="margin-top:6px;">
+                                    Status: <b>${entry.correct ? '✅ Benar' : '❌ Salah'}</b>
+                                    • Percobaan: <b>${entry.attempts || 1}</b>
+                                    • Waktu: <b>${formatMs(entry.time_taken || 0)}</b>
+                                  </div>
+                                  <div style="margin-top:10px; background:rgba(255,255,255,.65); border-radius:14px; padding:10px; border:2px solid rgba(47,90,58,.10); line-height:1.6;">
+                                    ${escapeHtml(entry.answer || '').replace(/\n/g,'<br>')}
+                                  </div>
+                                </div>
+                              `;
+                            }).join('')}
+                          </div>
+                        </div>
+                      `;
+                    }).join('')}
+                  </div>
+                `}
+              </div>
+            </div>
+          </section>
+        `;
+      }
+
+      app.innerHTML = content;
+    }
+
+    // ===============================
+    // 11) SUBMIT TOPIK
+    // ===============================
+    function ensureGroupExists(groupName){
+      if(!gameState.groups[groupName]){
+        gameState.groups[groupName] = {
+          topics: {},
+          total_correct: 0,
+          total_time: 0,
+          last_updated: Date.now()
+        };
+      }
+      if(!gameState.groups[groupName].topics) gameState.groups[groupName].topics = {};
+      return gameState.groups[groupName];
+    }
+
+    function recalcTotalsForGroup(groupObj){
+      let correctCount = 0;
+      let timeSum = 0;
+      for(const [tid, entry] of Object.entries(groupObj.topics || {})){
+        if(entry && entry.correct){
+          correctCount += 1;
+          timeSum += (entry.time_taken || 0);
+        }
+      }
+      groupObj.total_correct = correctCount;
+      groupObj.total_time = timeSum;
+      groupObj.last_updated = Date.now();
+    }
+
+    // (REVISI) Lock UI jika topik sudah benar untuk kelompok tsb
+    function updateAnswerLockUI(){
+      const groupSelect = document.getElementById('group_select');
+      const answerEl = document.getElementById('answer');
+      const submitBtn = document.getElementById('submitBtn');
+      const hintBox = document.getElementById('hintBox');
+
+      if(!groupSelect || !answerEl || !submitBtn) return;
+
+      const groupName = (groupSelect.value || '').trim();
+      const g = gameState.groups[groupName];
+      const entry = g && g.topics ? g.topics[selectedTopic] : null;
+
+      const locked = !!(entry && entry.correct);
+
+      answerEl.disabled = locked;
+      submitBtn.disabled = locked;
+      submitBtn.style.opacity = locked ? '.6' : '1';
+      submitBtn.style.cursor = locked ? 'not-allowed' : 'pointer';
+
+      if(hintBox){
+        if(locked){
+          hintBox.className = 'hint ok';
+          hintBox.innerHTML = `✅ Topik ini sudah <b>benar</b> untuk <b>${escapeHtml(groupName)}</b>. Tidak bisa dijawab ulang.`;
+        }else{
+          hintBox.className = 'hint';
+          hintBox.innerHTML = '';
+        }
+      }
+    }
+
+    function submitTopic(event){
+      event.preventDefault();
+
+      const groupSelect = document.getElementById('group_select');
+      const answerEl = document.getElementById('answer');
+      const hintBox = document.getElementById('hintBox');
+
+      const groupName = (groupSelect?.value || '').trim();
+      const answer = (answerEl?.value || '').trim();
+
+      if(!groupName){
+        showToast('Pilih kelompok terlebih dahulu.');
+        return;
+      }
+      if(!answer){
+        showToast('Jawaban masih kosong.');
+        return;
+      }
+
+      const groupObj = ensureGroupExists(groupName);
+
+      // (REVISI) cegah submit kalau topik sudah benar
+      const already = groupObj.topics && groupObj.topics[selectedTopic];
+      if(already && already.correct){
+        showToast('Topik ini sudah benar untuk kelompok ini. Tidak bisa dijawab ulang.');
+        navigateTo('topics');
+        return;
+      }
+
+      const prev = groupObj.topics[selectedTopic];
+      const attempts = (prev?.attempts || 0) + 1;
+
+      const result = evaluateAnswer(selectedTopic, answer);
+
+      if(result.ok){
+        const timeTaken = Date.now() - topicStartTime;
+
+        groupObj.topics[selectedTopic] = {
+          correct: true,
+          time_taken: timeTaken,
+          attempts,
+          answer,
+          matched: result.matched,
+          timestamp: Date.now()
+        };
+
+        recalcTotalsForGroup(groupObj);
+        saveGame();
+
+        hintBox.className = 'hint ok';
+        hintBox.innerHTML = `✅ <b>Benar!</b> Kata kunci terdeteksi: <b>${escapeHtml(result.matched.slice(0,6).join(', '))}${result.matched.length>6?'...':''}</b>.`;
+
+        // (REVISI) masuk rank dari jawaban benar
+        showToast('✅ Jawaban benar! Masuk ke Rank...');
+        setTimeout(()=>navigateTo('ranking', { from:'answer' }), 900);
+        return;
+      }
+
+      groupObj.topics[selectedTopic] = {
+        ...(prev || {}),
+        correct: false,
+        attempts,
+        answer,
+        timestamp: Date.now()
+      };
+      recalcTotalsForGroup(groupObj);
+      saveGame();
+
+      hintBox.className = 'hint bad';
+      hintBox.innerHTML = `❌ <b>Belum tepat.</b> Kurang <b>${result.needed}</b> kata kunci lagi. Coba lengkapi jawabanmu. (Percobaan: <b>${attempts}</b>)`;
+
+      showToast('Jawaban belum tepat, coba lagi.');
+    }
+
+    // ===============================
+    // 12) LOGIN GURU (modal)
+    // ===============================
+    function showTeacherLogin(){
+      if(isAdmin){
+        navigateTo('admin');
+        return;
+      }
+
+      const backdrop = document.createElement('div');
+      backdrop.className = 'modal-backdrop';
+      backdrop.id = 'teacherModal';
+
+      backdrop.innerHTML = `
+        <div class="modal">
+          <div class="icon">👩‍🏫</div>
+          <div class="title">Login Guru</div>
+
+          <div style="margin-top:16px;">
+            <div style="margin-bottom:12px;">
+              <label>Username</label>
+              <input id="teacherUsername" type="text" placeholder="Masukkan username" autocomplete="off" />
+            </div>
+
+            <div style="margin-bottom:8px;">
+              <label>Password</label>
+              <input id="teacherPassword" type="password" placeholder="Masukkan password" />
+            </div>
+
+            <div id="loginError" style="display:none; margin:10px 0; font-weight:900; color:#ef4444; text-align:center;">
+              ❌ Username atau password salah!
+            </div>
+
+            <div class="flex" style="margin-top:12px;">
+              <button class="btn btn-pill btn-primary" type="button" onclick="handleTeacherLogin()" style="flex:1;">Login</button>
+              <button class="btn btn-pill btn-ghost" type="button" onclick="closeTeacherModal()" style="flex:1;">Batal</button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(backdrop);
+      document.body.style.overflow = 'hidden';
+
+      backdrop.addEventListener('click', (e)=>{ if(e.target === backdrop) closeTeacherModal(); });
+      backdrop.addEventListener('keydown', (e)=>{
+        if(e.key === 'Enter'){ e.preventDefault(); handleTeacherLogin(); }
+        if(e.key === 'Escape'){ closeTeacherModal(); }
+      });
+
+      setTimeout(()=>document.getElementById('teacherUsername')?.focus(), 0);
+    }
+
+    function closeTeacherModal(){
+      document.getElementById('teacherModal')?.remove();
+      document.body.style.overflow = '';
+    }
+
+    function handleTeacherLogin(){
+      const u = (document.getElementById('teacherUsername')?.value || '').trim();
+      const p = (document.getElementById('teacherPassword')?.value || '');
+      const err = document.getElementById('loginError');
+
+      if(u === TEACHER_USERNAME && p === TEACHER_PASSWORD){
+        setTeacherSession(true);
+        closeTeacherModal();
+        showToast('✅ Login guru berhasil');
+        navigateTo('admin');
+      }else{
+        if(err) err.style.display = 'block';
+        const pEl = document.getElementById('teacherPassword');
+        if(pEl) pEl.value = '';
+        pEl?.focus();
+        setTimeout(()=>{ if(err) err.style.display='none'; }, 2000);
+      }
+    }
+
+    // ===============================
+    // 12B) RESET DATA + EXPORT EXCEL
+    // ===============================
+    function resetAllData(){
+      if(!isAdmin){
+        showToast('Akses ditolak.');
+        return;
+      }
+
+      const ok = confirm('Yakin reset semua data siswa? Semua hasil akan terhapus.');
+      if(!ok) return;
+
+      localStorage.removeItem(STORE_GAME_KEY);
+      gameState = { groups: {} };
+
+      showToast('✅ Data berhasil direset');
+      renderPage();
+    }
+
+    function downloadExcel(){
+      if(!isAdmin){
+        showToast('Akses ditolak.');
+        return;
+      }
+
+      if(typeof XLSX === 'undefined'){
+        alert('Library Excel (XLSX) belum termuat. Pastikan script CDN xlsx sudah ditambahkan.');
+        return;
+      }
+
+      const rowsRanking = computeRanking();
+      const totalTopics = topics.length;
+
+      const sheet1 = [];
+      sheet1.push(['Rank','Kelompok','Topik Selesai','Total Benar','Total Waktu (detik)']);
+      rowsRanking.forEach((r, i)=>{
+        sheet1.push([
+          i+1,
+          r.group,
+          `${r.topicsDone}/${totalTopics}`,
+          r.totalCorrect,
+          Math.round((r.totalTime||0)/1000)
+        ]);
+      });
+
+      const sheet2 = [];
+      sheet2.push([
+        'Kelompok','Topik','Status','Percobaan','Waktu (detik)','Jawaban','Kata Kunci Terdeteksi','Timestamp'
+      ]);
+
+      for(const [groupName, g] of Object.entries(gameState.groups || {})){
+        const perTopic = g.topics || {};
+        for(const t of topics){
+          const entry = perTopic[t.id];
+          if(!entry){
+            sheet2.push([groupName, t.name, 'Belum dikerjakan', '', '', '', '', '']);
+            continue;
+          }
+          sheet2.push([
+            groupName,
+            t.name,
+            entry.correct ? 'Benar' : 'Salah',
+            entry.attempts || 0,
+            entry.time_taken ? Math.round(entry.time_taken/1000) : '',
+            entry.answer || '',
+            (entry.matched || []).join(', '),
+            entry.timestamp ? new Date(entry.timestamp).toLocaleString('id-ID') : ''
+          ]);
+        }
+      }
+
+      const wb = XLSX.utils.book_new();
+      const ws1 = XLSX.utils.aoa_to_sheet(sheet1);
+      const ws2 = XLSX.utils.aoa_to_sheet(sheet2);
+
+      ws1['!cols'] = [{wch:8},{wch:18},{wch:14},{wch:12},{wch:16}];
+      ws2['!cols'] = [
+        {wch:18},{wch:14},{wch:12},{wch:10},{wch:12},{wch:60},{wch:30},{wch:22}
+      ];
+
+      XLSX.utils.book_append_sheet(wb, ws1, 'Ranking');
+      XLSX.utils.book_append_sheet(wb, ws2, 'Jawaban');
+
+      const filename = `ExcretiX_Hasil_${new Date().toISOString().slice(0,10)}.xlsx`;
+      XLSX.writeFile(wb, filename);
+      showToast('⬇️ Excel berhasil dibuat');
+    }
+
+    // ===============================
+    // 13) INIT
+    // ===============================
+    loadTeacherSession();
+    loadGame();
+    renderPage();
+  </script>
+</body>
+</html>
