@@ -103,36 +103,6 @@
         justify-content:flex-start
     } /* (REVISI) cover ke tengah */
 
-    .map-illus{
-      width:min(520px,100%);aspect-ratio:16/9;position:relative;border-radius:22px;
-      background:
-        radial-gradient(140px 90px at 20% 25%, rgba(255,255,255,.55), transparent 70%),
-        radial-gradient(160px 100px at 70% 35%, rgba(255,255,255,.38), transparent 72%),
-        linear-gradient(180deg,#c7dfc6,#b6d3b5);
-      box-shadow:var(--shadow);overflow:hidden;
-    }
-    .scroll{
-      position:absolute;inset:14px;border-radius:18px;
-      background:linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,.10));
-      border:2px solid rgba(47,90,58,.18);overflow:hidden;
-    }
-    .path{position:absolute;inset:0;opacity:.55}
-    .pin{
-      position:absolute;width:54px;height:54px;border-radius:999px;display:grid;place-items:center;
-      background:#1f5a39;box-shadow:0 14px 24px rgba(0,0,0,.18);
-      border:4px solid rgba(255,255,255,.65);
-    }
-    .pin span{font-size:22px;color:#fff}
-    .pin.one{left:18%;top:48%}
-    .pin.two{left:52%;top:26%}
-    .pin.three{left:66%;top:60%;background:#214c34}
-    .kid{
-      position:absolute;right:18px;bottom:10px;width:120px;height:180px;border-radius:18px;
-      background:rgba(255,255,255,.28);border:2px solid rgba(47,90,58,.16);
-      display:flex;align-items:center;justify-content:center;box-shadow:0 18px 30px rgba(15,35,22,.12);
-    }
-    .kid .emo{font-size:70px}
-
     /* (REVISI) COVER BULAT + LEBIH KECIL */
     .cover-wrap{
       width:360px;
@@ -149,7 +119,7 @@
     .cover-img{
       width:100%;
       height:100%;
-      object-fit:cover;   /* biar kepotong rapi jadi bulat */
+      object-fit:cover;
       display:block;
     }
 
@@ -322,12 +292,64 @@
     // ===============================
     const GROUP_OPTIONS = Array.from({length: 10}, (_, i) => `Kelompok ${i+1}`);
 
+    // ✅ (REVISI) KEYWORDS PER KASUS (c1/c2/c3) DI DALAM TOPIK
     const TOPIC_RULES = {
-      ginjal: { minMatch: 2, keywords: ["filtrasi","glomerulus","nefron","reabsorpsi","augmentasi","urea","urin","osmoregulasi","air","garam"] },
-      hati:   { minMatch: 2, keywords: ["detoksifikasi","urea","empedu","bilirubin","amonia","metabolisme","racun","zat berbahaya"] },
-      paru:   { minMatch: 1, keywords: ["karbon dioksida","co2","uap air","pernapasan","alveolus"] },
-      kulit:  { minMatch: 1, keywords: ["keringat","kelenjar keringat","urea","garam","air","termoregulasi","suhu"] }
+      ginjal: {
+        cases: {
+          c1: { minMatch: 2, keywords: ["filtrasi","glomerulus","nefron"] },
+          c2: { minMatch: 2, keywords: ["reabsorpsi","tubulus","air","garam"] },
+          c3: { minMatch: 2, keywords: ["augmentasi","urea","urin","osmoregulasi"] },
+        }
+      },
+      hati: {
+        cases: {
+          c1: { minMatch: 2, keywords: ["detoksifikasi","racun","zat berbahaya"] },
+          c2: { minMatch: 2, keywords: ["amonia","urea","metabolisme"] },
+          c3: { minMatch: 2, keywords: ["empedu","bilirubin"] },
+        }
+      },
+      paru: {
+        cases: {
+          c1: { minMatch: 1, keywords: ["karbon dioksida","co2"] },
+          c2: { minMatch: 1, keywords: ["uap air","pernapasan"] },
+          c3: { minMatch: 1, keywords: ["alveolus","difusi"] },
+        }
+      },
+      kulit: {
+        cases: {
+          c1: { minMatch: 1, keywords: ["keringat","kelenjar keringat"] },
+          c2: { minMatch: 1, keywords: ["urea","garam","air"] },
+          c3: { minMatch: 1, keywords: ["termoregulasi","suhu"] },
+        }
+      }
     };
+
+    // ✅ 3 kasus per topik (bisa ditambah jadi 4 kalau mau)
+    const TOPIC_CASES = {
+      ginjal: [
+        { id: "c1", title: "Kasus 1" },
+        { id: "c2", title: "Kasus 2" },
+        { id: "c3", title: "Kasus 3" },
+      ],
+      hati: [
+        { id: "c1", title: "Kasus 1" },
+        { id: "c2", title: "Kasus 2" },
+        { id: "c3", title: "Kasus 3" },
+      ],
+      paru: [
+        { id: "c1", title: "Kasus 1" },
+        { id: "c2", title: "Kasus 2" },
+        { id: "c3", title: "Kasus 3" },
+      ],
+      kulit: [
+        { id: "c1", title: "Kasus 1" },
+        { id: "c2", title: "Kasus 2" },
+        { id: "c3", title: "Kasus 3" },
+      ],
+    };
+
+    // ✅ (BARU) 1 topik boleh dipilih max 3 kelompok
+    const MAX_GROUPS_PER_TOPIC = 3;
 
     // ===============================
     // 2) LOGIN GURU
@@ -341,19 +363,24 @@
     // ===============================
     const STORE_GAME_KEY = 'excretix_v2_game';
 
+    // ✅ (BARU) simpan pilihan kelompok di halaman TOPIK
+    const STORE_SELECTED_GROUP_KEY = 'excretix_selected_group';
+
     // ===============================
     // 4) STATE
     // ===============================
     let currentPage = 'home';
     let selectedTopic = null;
+    let selectedGroup = null; // ✅ kelompok yg sedang mengerjakan
     let topicStartTime = null;
 
-    // (REVISI) rank asal dari mana
     let rankFrom = 'menu';          // 'menu' atau 'answer'
-
     let isAdmin = false;
 
     let gameState = { groups: {} };
+
+    // ✅ (BARU) aksi setelah lihat rank (lanjut kasus / selesai)
+    let afterRankAction = null;
 
     const topics = [
       { id: 'ginjal', name: 'Ginjal', icon: '🫘' },
@@ -392,21 +419,22 @@
         .trim();
     }
 
-    function evaluateAnswer(topicId, answer){
-      const rules = TOPIC_RULES[topicId];
-      if(!rules) return { ok:false, matched:[], needed:1, minMatch:1 };
+    // ✅ (REVISI) evaluasi kata kunci sekarang PER KASUS
+    function evaluateAnswer(topicId, caseId, answer){
+      const rule = TOPIC_RULES?.[topicId]?.cases?.[caseId];
+      if(!rule) return { ok:false, matched:[], needed:1, minMatch:1 };
 
       const norm = normalizeText(answer);
       const matched = [];
 
-      for(const kw of rules.keywords){
+      for(const kw of (rule.keywords || [])){
         const needle = normalizeText(kw);
         if(needle && norm.includes(needle)){
           matched.push(kw);
         }
       }
 
-      const minMatch = rules.minMatch || 1;
+      const minMatch = rule.minMatch || 1;
       return { ok: matched.length >= minMatch, matched, needed: Math.max(0, minMatch - matched.length), minMatch };
     }
 
@@ -415,6 +443,15 @@
       const m = Math.floor(s/60);
       const r = s % 60;
       return m>0 ? `${m}m ${r}s` : `${r}s`;
+    }
+
+    // ✅ (BARU) hitung berapa kelompok yang sudah memilih topik tertentu
+    function countGroupsPickingTopic(topicId){
+      let n = 0;
+      for(const g of Object.values(gameState.groups || {})){
+        if(g?.picked_topic === topicId) n++;
+      }
+      return n;
     }
 
     // ===============================
@@ -434,6 +471,15 @@
 
     function saveGame(){
       localStorage.setItem(STORE_GAME_KEY, JSON.stringify(gameState));
+    }
+
+    // ✅ (BARU) simpan/ambil kelompok terpilih (hanya dari halaman TOPIK)
+    function loadSelectedGroup(){
+      selectedGroup = localStorage.getItem(STORE_SELECTED_GROUP_KEY) || null;
+    }
+    function saveSelectedGroup(){
+      if(selectedGroup) localStorage.setItem(STORE_SELECTED_GROUP_KEY, selectedGroup);
+      else localStorage.removeItem(STORE_SELECTED_GROUP_KEY);
     }
 
     // ===============================
@@ -466,42 +512,59 @@
 
       currentPage = page;
 
-      // (REVISI) track asal masuk Rank
       if(page === 'ranking'){
         rankFrom = (data && data.from) ? data.from : 'menu';
       }
 
       if(data && data.topic) selectedTopic = data.topic;
+      if(data && data.group){
+        selectedGroup = data.group;
+        saveSelectedGroup(); // ✅ supaya konsisten keingat juga
+      }
+
       if(page === 'answer') topicStartTime = Date.now();
+
       renderPage();
-
-      // (REVISI) saat buka halaman answer, langsung lock UI sesuai kelompok/topik
-      if(page === 'answer') setTimeout(updateAnswerLockUI, 0);
-
       window.scrollTo({top:0, behavior:"smooth"});
     }
 
     // ===============================
-    // 9) RANKING
+    // 9) RANKING (LIVE PER KASUS)
     // ===============================
     function computeRanking(){
       const rows = [];
 
       for(const [groupName, g] of Object.entries(gameState.groups)){
-        const topicsDone = Object.values(g.topics || {}).filter(x => x && x.correct).length;
-        const totalCorrect = g.total_correct || 0;
-        const totalTime = g.total_time || 0;
+        const picked = g.picked_topic;
+        if(!picked) continue;
+
+        const casesDef = TOPIC_CASES[picked] || [];
+        const casesData = g.topics?.[picked]?.cases || {};
+
+        let casesCorrect = 0;
+        let totalTime = 0;
+
+        for(const c of casesDef){
+          const e = casesData[c.id];
+          if(e && e.correct){
+            casesCorrect += 1;
+            totalTime += (e.time_taken || 0);
+          }
+        }
+
         rows.push({
           group: groupName,
-          topicsDone,
-          totalCorrect,
+          topicId: picked,
+          topicName: topics.find(x=>x.id===picked)?.name || picked,
+          progress: `${casesCorrect}/${casesDef.length}`,
+          casesCorrect,
           totalTime,
           last: g.last_updated || 0
         });
       }
 
       rows.sort((a,b)=>{
-        if(b.totalCorrect !== a.totalCorrect) return b.totalCorrect - a.totalCorrect;
+        if(b.casesCorrect !== a.casesCorrect) return b.casesCorrect - a.casesCorrect;
         if(a.totalTime !== b.totalTime) return a.totalTime - b.totalTime;
         return (b.last - a.last);
       });
@@ -532,8 +595,6 @@
                 </div>
 
                 <div class="hero-right">
-                  <!-- (REVISI) cover: bulat + lebih kecil + posisi tengah -->
-                  <!-- Taruh file: cover.png sefolder dengan allmenu.html -->
                   <div class="cover-wrap">
                     <img class="cover-img" src="cover.png" alt="Cover ExcretiX">
                   </div>
@@ -605,14 +666,13 @@
 
                 <div class="menu-card" onclick="navigateTo('topics')">
                   <h3>Topik</h3>
-                  <p>Pilih topik ekskresi dan selesaikan satu per satu.</p>
+                  <p>Pilih topik ekskresi untuk tiap kelompok (1 topik per kelompok).</p>
                   <button class="btn cta">Main</button>
                 </div>
 
-                <!-- (REVISI) Rank dari menu harus from:menu -->
                 <div class="menu-card" onclick="navigateTo('ranking',{from:'menu'})">
                   <h3>Peringkat</h3>
-                  <p>Lihat peringkat dari total ketepatan dan waktu.</p>
+                  <p>Lihat peringkat live berdasarkan kasus benar & waktu.</p>
                   <button class="btn cta">Lihat</button>
                 </div>
               </div>
@@ -635,14 +695,13 @@
                 <h2>Cara Bermain</h2>
 
                 <div style="line-height:1.9; font-weight:800; color:rgba(31,59,40,.78);">
-                  <p style="margin-bottom:12px;">📌 Buka <b>Peta</b> → cari card permasalahan (fisik) → lalu jawab di <b>Topics</b>.</p>
-                  <p style="margin-bottom:12px;">📌 Pilih topik → pilih kelompok → tulis jawaban.</p>
-                  <p style="margin-bottom:12px;">📌 Jawaban panjang boleh, yang penting mengandung <b>kata kunci</b> penting.</p>
-                  <p style="margin-bottom:12px;">📌 Kalau jawaban belum tepat, kamu bisa <b>mengulang</b> sampai benar.</p>
-                  <p style="margin-bottom:12px;">📌 Setelah benar, kamu masuk ke <b>Rank</b>. Lanjutkan topik berikutnya.</p>
-                  <p style="margin-bottom:12px;">🏆 Rank utama dihitung dari <b>total topik benar</b> dan <b>total waktu pengerjaan</b>.</p>
+                  <p style="margin-bottom:12px;">📌 Buka <b>Peta</b> → cari card permasalahan (fisik) → lalu jawab di <b>Topik</b>.</p>
+                  <p style="margin-bottom:12px;">📌 Pilih <b>Kelompok</b> → pilih <b>1 Topik</b> (tidak bisa ganti).</p>
+                  <p style="margin-bottom:12px;">📌 Di dalam topik ada <b>3 kasus</b>. Jawab per kasus.</p>
+                  <p style="margin-bottom:12px;">📌 Setiap kali <b>kasus berhasil benar</b> kamu otomatis masuk ke <b>Rank</b>.</p>
+                  <p style="margin-bottom:12px;">🏆 Urutan: <b>kasus benar terbanyak</b> → <b>total waktu tercepat</b>.</p>
 
-                  <div class="info-box">💡 Tips: Kerjakan cepat & tepat agar total waktu lebih kecil.</div>
+                  <div class="info-box">💡 Tips: Semakin cepat kasus menjadi benar, ranking akan naik.</div>
                 </div>
 
                 <div class="text-center" style="margin-top:18px;">
@@ -663,7 +722,7 @@
               <div class="panel" style="max-width:980px; margin:0 auto;">
                 <h2>Peta Petunjuk</h2>
                 <div class="muted" style="margin-top:4px;">
-                  Gunakan peta untuk menemukan card permasalahan (fisik). Setelah itu, jawab di menu <b>Topics</b>.
+                  Gunakan peta untuk menemukan card permasalahan (fisik). Setelah itu, jawab di menu <b>Topik</b>.
                 </div>
 
                 <div class="map-image-wrap">
@@ -679,30 +738,51 @@
         `;
       }
 
+      // ✅ TOPICS: pilih kelompok dulu, lalu pilih 1 topik (terkunci)
       else if(currentPage === 'topics'){
         content = `
           <section class="page">
             <div class="container">
               <h1 class="page-title">TOPIK</h1>
 
-              <div class="panel">
+              <div class="panel" style="max-width:980px;margin:0 auto;">
+                <div class="form-group">
+                  <label>Nama Kelompok</label>
+                  <select id="topics_group_select" required onchange="handlePickGroupInTopics()">
+                    <option value="" disabled ${!selectedGroup ? 'selected' : ''}>Pilih Kelompok...</option>
+                    ${GROUP_OPTIONS.map(g => `
+                      <option value="${escapeHtml(g)}" ${selectedGroup===g ? 'selected' : ''}>${escapeHtml(g)}</option>
+                    `).join('')}
+                  </select>
+                </div>
+
                 <div class="muted" style="text-align:center; margin-bottom:14px;">
-                  Selesaikan topik satu per satu. Setiap topik benar akan menambah skor total.
+                  Setiap kelompok hanya boleh memilih <b>1 topik</b>. 1 topik bisa dipilih maksimal <b>${MAX_GROUPS_PER_TOPIC}</b> kelompok.
                 </div>
 
                 <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px;">
-                  ${topics.map(t=>`
-                    <div class="menu-card" style="min-height:220px" onclick="navigateTo('answer',{topic:'${t.id}'})">
-                      <div style="font-size:58px;margin-bottom:10px">${t.icon}</div>
-                      <h3 style="margin-bottom:6px">${t.name}</h3>
-                      <p style="margin-bottom:14px">Klik untuk mulai mengerjakan.</p>
-                      <button class="btn cta">Mulai</button>
-                    </div>
-                  `).join('')}
+                  ${topics.map(t=>{
+                    const used = countGroupsPickingTopic(t.id);
+                    const left = Math.max(0, MAX_GROUPS_PER_TOPIC - used);
+                    const full = left === 0;
+
+                    return `
+                      <div class="menu-card" style="min-height:220px; opacity:${full?'.80':'1'}" onclick="startTopicForGroup('${t.id}')">
+                        <div style="font-size:58px;margin-bottom:10px">${t.icon}</div>
+                        <h3 style="margin-bottom:6px">${t.name}</h3>
+                        <p style="margin-bottom:10px">Pilih topik ini untuk kelompok.</p>
+                        <div class="muted" style="margin-bottom:12px; font-weight:900;">
+                          Slot: <b>${used}/${MAX_GROUPS_PER_TOPIC}</b> ${full ? '• (Penuh)' : `• sisa ${left}`}
+                        </div>
+                        <button class="btn cta" data-topic-pick-btn="1" ${full ? 'disabled style="opacity:.6;cursor:not-allowed"' : ''}>Pilih</button>
+                      </div>
+                    `;
+                  }).join('')}
                 </div>
 
                 <div class="text-center" style="margin-top:18px;">
                   <button class="btn btn-pill btn-primary" onclick="navigateTo('menu')">MENU</button>
+                  <button class="btn btn-pill btn-ghost" style="margin-left:10px;" onclick="navigateTo('ranking',{from:'menu'})">Lihat Rank</button>
                 </div>
               </div>
             </div>
@@ -710,9 +790,16 @@
         `;
       }
 
+      // ✅ ANSWER: BOX PER KASUS + textarea di dalam box + submit per kasus
       else if(currentPage === 'answer'){
         const t = topics.find(x=>x.id===selectedTopic) || {name:'', icon:'📌'};
-        const rule = TOPIC_RULES[selectedTopic] || {minMatch:1, keywords:[]};
+        const rule = TOPIC_RULES?.[selectedTopic] || { cases:{} }; // ✅ (REVISI) aturan topik sekarang berisi cases
+        const casesDef = TOPIC_CASES[selectedTopic] || [];
+
+        const g = selectedGroup ? gameState.groups[selectedGroup] : null;
+        const casesData = g?.topics?.[selectedTopic]?.cases || {};
+
+        const correctCount = casesDef.filter(c => casesData[c.id]?.correct).length;
 
         content = `
           <section class="page">
@@ -722,35 +809,62 @@
               <div class="panel" style="max-width:980px; margin:0 auto;">
                 <div class="text-center" style="margin-bottom:10px;">
                   <div style="font-size:64px">${t.icon}</div>
-                  <div class="muted">Tulis jawaban terbaik — cepat & tepat = skor tinggi.</div>
+                  <div class="muted">
+                    Kelompok: <b>${escapeHtml(selectedGroup || '')}</b> • Progress:
+                    <b>${correctCount}/${casesDef.length}</b>
+                  </div>
                 </div>
 
-                <form onsubmit="submitTopic(event); return false;">
-                  <div class="form-group">
-                    <label>Nama Kelompok</label>
-                    <!-- (REVISI) onchange untuk lock UI -->
-                    <select id="group_select" required onchange="updateAnswerLockUI()">
-                      <option value="" disabled selected>Pilih Kelompok...</option>
-                      ${GROUP_OPTIONS.map(g => `<option value="${escapeHtml(g)}">${escapeHtml(g)}</option>`).join('')}
-                    </select>
-                  </div>
+                <!-- ✅ (REVISI) info umum (minMatch beda-beda per kasus) -->
+                <div class="info-box" style="margin-top:0;">
+                  📝 Sistem akan mengecek kata kunci sesuai <b>kasus</b>. (Setiap kasus punya minimal cocok sendiri.)
+                </div>
 
-                  <div class="form-group">
-                    <label>Jawaban Permasalahan</label>
-                    <textarea id="answer" rows="9" placeholder="Tulis jawaban di sini..." required></textarea>
-                  </div>
+                <div style="margin-top:16px;">
+                  ${casesDef.map((c, idx)=>{
+                    const prev = casesData[c.id];
+                    const locked = !!(prev && prev.correct);
+                    const prevVal = prev?.answer || '';
+                    const attempts = prev?.attempts || 0;
 
-                  <div class="info-box">
-                    📝 Sistem akan mengecek kata kunci. Minimal cocok: <b>${rule.minMatch || 1}</b> kata kunci.
-                  </div>
+                    // ✅ tampilkan minMatch per kasus (optional, aman)
+                    const caseRule = rule?.cases?.[c.id];
+                    const minMatchText = caseRule?.minMatch ? `• Minimal cocok: <b>${caseRule.minMatch}</b>` : '';
 
-                  <div id="hintBox" class="hint"></div>
+                    return `
+                      <div class="panel" style="margin-top:14px; background:rgba(255,255,255,.50);">
+                        <div class="flex-between">
+                          <div style="font-weight:900; font-size:18px;">${escapeHtml(c.title)} (Kasus ${idx+1})</div>
+                          <div class="muted">
+                            ${locked
+                              ? `✅ Benar • Waktu: <b>${formatMs(prev.time_taken||0)}</b> • Percobaan: <b>${attempts}</b>`
+                              : (attempts>0 ? `❌ Belum tepat • Percobaan: <b>${attempts}</b> ${minMatchText}` : `Belum dikerjakan ${minMatchText}`)
+                            }
+                          </div>
+                        </div>
 
-                  <div class="flex" style="margin-top:16px;">
-                    <button id="submitBtn" type="submit" class="btn btn-pill btn-primary" style="flex:1;">KOREKSI</button>
-                    <button type="button" class="btn btn-pill btn-ghost" onclick="navigateTo('topics')" style="flex:1;">TOPIK</button>
-                  </div>
-                </form>
+                        <div style="margin-top:12px;">
+                          <textarea id="case_${escapeHtml(c.id)}" rows="6" placeholder="Tulis jawaban kasus ${idx+1}..." ${locked?'disabled':''}>${escapeHtml(prevVal)}</textarea>
+                          <div id="hint_${escapeHtml(c.id)}" class="hint"></div>
+                        </div>
+
+                        <!-- ✅ (REVISI) HAPUS tombol LIHAT RANK di halaman kasus -->
+                        <div class="flex" style="margin-top:12px;">
+                          <button class="btn btn-pill btn-primary" style="flex:1;" ${locked?'disabled style="flex:1;opacity:.6;cursor:not-allowed"':''}
+                            onclick="submitSingleCase(event, '${c.id}')">
+                            KOREKSI KASUS ${idx+1}
+                          </button>
+                        </div>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+
+                <div class="flex" style="margin-top:16px;">
+                  <button type="button" class="btn btn-pill btn-ghost" onclick="navigateTo('topics')" style="flex:1;">TOPIK</button>
+                  <button type="button" class="btn btn-pill btn-ghost" onclick="navigateTo('menu')" style="flex:1;">MENU</button>
+                </div>
+
               </div>
             </div>
           </section>
@@ -759,7 +873,6 @@
 
       else if(currentPage === 'ranking'){
         const rows = computeRanking();
-        const totalTopics = topics.length;
 
         content = `
           <section class="page">
@@ -774,12 +887,12 @@
                       Belum ada data. Mulai kerjakan topik!
                     </div>
                     <div style="margin-top:16px;">
-                      <button class="btn btn-pill btn-primary" onclick="navigateTo('topics')">Mulai Topik</button>
+                      <button class="btn btn-pill btn-primary" onclick="navigateTo('topics')">Mulai</button>
                     </div>
                   </div>
                 ` : `
                   <div class="info-box" style="margin-top:0;">
-                    🏆 Urutan: <b>Topik benar terbanyak</b> → <b>Total waktu tercepat</b>
+                    🏆 Urutan: <b>Kasus benar terbanyak</b> → <b>Total waktu tercepat</b>
                   </div>
 
                   <div style="overflow:auto; margin-top:14px;">
@@ -788,8 +901,8 @@
                         <tr>
                           <th style="width:110px;">Rank</th>
                           <th>Kelompok</th>
-                          <th style="width:170px;">Topik Selesai</th>
-                          <th style="width:150px;">Total Benar</th>
+                          <th style="width:180px;">Topik</th>
+                          <th style="width:160px;">Progress Kasus</th>
                           <th style="width:170px;">Total Waktu</th>
                         </tr>
                       </thead>
@@ -800,8 +913,8 @@
                             <tr>
                               <td><b>${medal} ${i+1}</b></td>
                               <td style="font-weight:900;">${escapeHtml(r.group)}</td>
-                              <td><b>${r.topicsDone}/${totalTopics}</b></td>
-                              <td><b>${r.totalCorrect}</b></td>
+                              <td><b>${escapeHtml(r.topicName)}</b></td>
+                              <td><b>${escapeHtml(r.progress)}</b></td>
                               <td><b>${formatMs(r.totalTime)}</b></td>
                             </tr>
                           `;
@@ -810,12 +923,14 @@
                     </table>
                   </div>
 
-                  <!-- (REVISI) tombol berbeda sesuai asal rank -->
                   <div class="text-center" style="margin-top:18px;">
                     ${
                       rankFrom === 'answer'
                         ? `
-                          <button class="btn btn-pill btn-primary" onclick="navigateTo('topics')">Lanjut Topik</button>
+                          <!-- ✅ (REVISI) dari answer: lanjut kasus berikutnya / selesai -->
+                          <button class="btn btn-pill btn-primary" onclick="continueAfterRank()">
+                            ${afterRankAction?.isDone ? 'SELESAI → MENU' : 'LANJUT KASUS BERIKUTNYA'}
+                          </button>
                           <button class="btn btn-pill btn-ghost" style="margin-left:10px;" onclick="navigateTo('menu')">← Menu</button>
                         `
                         : `
@@ -848,9 +963,9 @@
 
               <div class="panel">
                 <h2 style="margin-bottom:6px;">Data Kelompok</h2>
-                <div class="muted" style="margin-bottom:14px;">Menampilkan ringkasan dan jawaban tiap topik per kelompok.</div>
+                <div class="muted" style="margin-bottom:14px;">Menampilkan progres kasus & jawaban per kelompok.</div>
 
-                ${rows.length === 0 ? `
+                ${Object.keys(gameState.groups || {}).length === 0 ? `
                   <div class="text-center" style="padding:34px 0;">
                     <div style="font-size:56px;">📝</div>
                     <div style="font-size:18px;font-weight:900;color:rgba(31,59,40,.75);margin-top:8px;">
@@ -864,7 +979,8 @@
                         <tr>
                           <th style="width:90px;">Rank</th>
                           <th>Kelompok</th>
-                          <th style="width:170px;">Topik Selesai</th>
+                          <th style="width:180px;">Topik</th>
+                          <th style="width:160px;">Progress Kasus</th>
                           <th style="width:140px;">Total Waktu</th>
                         </tr>
                       </thead>
@@ -873,7 +989,8 @@
                           <tr>
                             <td><b>${i+1}</b></td>
                             <td style="font-weight:900;">${escapeHtml(r.group)}</td>
-                            <td><b>${r.topicsDone}/${topics.length}</b></td>
+                            <td><b>${escapeHtml(r.topicName)}</b></td>
+                            <td><b>${escapeHtml(r.progress)}</b></td>
                             <td><b>${formatMs(r.totalTime)}</b></td>
                           </tr>
                         `).join('')}
@@ -882,42 +999,55 @@
                   </div>
 
                   <div style="margin-top:18px;">
-                    ${rows.map((r)=>{
-                      const g = gameState.groups[r.group];
-                      const perTopic = g.topics || {};
+                    ${Object.entries(gameState.groups || {}).map(([groupName, g])=>{
+                      const picked = g.picked_topic;
+                      const topicMeta = topics.find(x=>x.id===picked);
+                      const topicName = topicMeta?.name || (picked || 'Belum pilih');
+                      const icon = topicMeta?.icon || '📌';
+
+                      const casesDef = picked ? (TOPIC_CASES[picked] || []) : [];
+                      const casesData = picked ? (g.topics?.[picked]?.cases || {}) : {};
+
+                      const correctCount = casesDef.filter(c => casesData[c.id]?.correct).length;
+                      const progress = picked ? `${correctCount}/${casesDef.length}` : `0/0`;
+
                       return `
                         <div class="panel" style="margin-top:14px; background:rgba(255,255,255,.50);">
                           <div class="flex-between">
-                            <div style="font-weight:900; font-size:18px;">${escapeHtml(r.group)}</div>
-                            <div class="muted">Benar: ${g.total_correct || 0} • Waktu: ${formatMs(g.total_time || 0)}</div>
+                            <div style="font-weight:900; font-size:18px;">${escapeHtml(groupName)}</div>
+                            <div class="muted">Topik: <b>${escapeHtml(topicName)}</b> • Progress: <b>${escapeHtml(progress)}</b> • Waktu: ${formatMs(g.total_time || 0)}</div>
                           </div>
 
-                          <div style="margin-top:12px; display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:12px;">
-                            ${topics.map(t=>{
-                              const entry = perTopic[t.id];
-                              if(!entry){
+                          ${!picked ? `
+                            <div class="info-box" style="margin-top:12px;">Kelompok ini belum memilih topik.</div>
+                          ` : `
+                            <div style="margin-top:12px; display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:12px;">
+                              ${casesDef.map((c, idx)=>{
+                                const entry = casesData[c.id];
+                                if(!entry){
+                                  return `
+                                    <div style="border:2px solid rgba(47,90,58,.14); border-radius:18px; padding:12px; background:rgba(232,246,230,.65);">
+                                      <div style="font-weight:900;">${icon} ${escapeHtml(topicName)} • Kasus ${idx+1}</div>
+                                      <div class="muted" style="margin-top:6px;">Belum dikerjakan</div>
+                                    </div>
+                                  `;
+                                }
                                 return `
                                   <div style="border:2px solid rgba(47,90,58,.14); border-radius:18px; padding:12px; background:rgba(232,246,230,.65);">
-                                    <div style="font-weight:900;">${t.icon} ${t.name}</div>
-                                    <div class="muted" style="margin-top:6px;">Belum dikerjakan</div>
+                                    <div style="font-weight:900;">${icon} ${escapeHtml(topicName)} • Kasus ${idx+1}</div>
+                                    <div class="muted" style="margin-top:6px;">
+                                      Status: <b>${entry.correct ? '✅ Benar' : '❌ Salah'}</b>
+                                      • Percobaan: <b>${entry.attempts || 1}</b>
+                                      • Waktu: <b>${formatMs(entry.time_taken || 0)}</b>
+                                    </div>
+                                    <div style="margin-top:10px; background:rgba(255,255,255,.65); border-radius:14px; padding:10px; border:2px solid rgba(47,90,58,.10); line-height:1.6;">
+                                      ${escapeHtml(entry.answer || '').replace(/\n/g,'<br>')}
+                                    </div>
                                   </div>
                                 `;
-                              }
-                              return `
-                                <div style="border:2px solid rgba(47,90,58,.14); border-radius:18px; padding:12px; background:rgba(232,246,230,.65);">
-                                  <div style="font-weight:900;">${t.icon} ${t.name}</div>
-                                  <div class="muted" style="margin-top:6px;">
-                                    Status: <b>${entry.correct ? '✅ Benar' : '❌ Salah'}</b>
-                                    • Percobaan: <b>${entry.attempts || 1}</b>
-                                    • Waktu: <b>${formatMs(entry.time_taken || 0)}</b>
-                                  </div>
-                                  <div style="margin-top:10px; background:rgba(255,255,255,.65); border-radius:14px; padding:10px; border:2px solid rgba(47,90,58,.10); line-height:1.6;">
-                                    ${escapeHtml(entry.answer || '').replace(/\n/g,'<br>')}
-                                  </div>
-                                </div>
-                              `;
-                            }).join('')}
-                          </div>
+                              }).join('')}
+                            </div>
+                          `}
                         </div>
                       `;
                     }).join('')}
@@ -930,14 +1060,42 @@
       }
 
       app.innerHTML = content;
+
+      // ✅ (BARU) kalau page topics: kunci tombol pilih kalau belum pilih kelompok
+      if(currentPage === 'topics'){
+        updateTopicsCardsLock();
+      }
+    }
+
+    // ✅ (BARU) handle pilihan kelompok di halaman TOPIK + lock tombol
+    function handlePickGroupInTopics(){
+      const sel = document.getElementById('topics_group_select');
+      const groupName = (sel?.value || '').trim();
+      selectedGroup = groupName || null;
+      saveSelectedGroup();
+      updateTopicsCardsLock();
+    }
+
+    function updateTopicsCardsLock(){
+      const hasGroup = !!(selectedGroup && selectedGroup.trim());
+      document.querySelectorAll('[data-topic-pick-btn="1"]').forEach(btn=>{
+        // jika topik sudah penuh, biarkan disabled (sudah di-render)
+        const alreadyDisabledBecauseFull = btn.disabled && btn.style.cursor === 'not-allowed';
+        if(!alreadyDisabledBecauseFull){
+          btn.disabled = !hasGroup;
+        }
+        btn.style.opacity = btn.disabled ? '.55' : '1';
+        btn.style.cursor = btn.disabled ? 'not-allowed' : 'pointer';
+      });
     }
 
     // ===============================
-    // 11) SUBMIT TOPIK
+    // 11) DATA MODEL (GROUP + TOPIK TERKUNCI)
     // ===============================
     function ensureGroupExists(groupName){
       if(!gameState.groups[groupName]){
         gameState.groups[groupName] = {
+          picked_topic: null,
           topics: {},
           total_correct: 0,
           total_time: 0,
@@ -948,123 +1106,193 @@
       return gameState.groups[groupName];
     }
 
-    function recalcTotalsForGroup(groupObj){
-      let correctCount = 0;
-      let timeSum = 0;
-      for(const [tid, entry] of Object.entries(groupObj.topics || {})){
-        if(entry && entry.correct){
-          correctCount += 1;
-          timeSum += (entry.time_taken || 0);
-        }
-      }
-      groupObj.total_correct = correctCount;
-      groupObj.total_time = timeSum;
-      groupObj.last_updated = Date.now();
-    }
-
-    // (REVISI) Lock UI jika topik sudah benar untuk kelompok tsb
-    function updateAnswerLockUI(){
-      const groupSelect = document.getElementById('group_select');
-      const answerEl = document.getElementById('answer');
-      const submitBtn = document.getElementById('submitBtn');
-      const hintBox = document.getElementById('hintBox');
-
-      if(!groupSelect || !answerEl || !submitBtn) return;
-
-      const groupName = (groupSelect.value || '').trim();
-      const g = gameState.groups[groupName];
-      const entry = g && g.topics ? g.topics[selectedTopic] : null;
-
-      const locked = !!(entry && entry.correct);
-
-      answerEl.disabled = locked;
-      submitBtn.disabled = locked;
-      submitBtn.style.opacity = locked ? '.6' : '1';
-      submitBtn.style.cursor = locked ? 'not-allowed' : 'pointer';
-
-      if(hintBox){
-        if(locked){
-          hintBox.className = 'hint ok';
-          hintBox.innerHTML = `✅ Topik ini sudah <b>benar</b> untuk <b>${escapeHtml(groupName)}</b>. Tidak bisa dijawab ulang.`;
-        }else{
-          hintBox.className = 'hint';
-          hintBox.innerHTML = '';
-        }
-      }
-    }
-
-    function submitTopic(event){
-      event.preventDefault();
-
-      const groupSelect = document.getElementById('group_select');
-      const answerEl = document.getElementById('answer');
-      const hintBox = document.getElementById('hintBox');
-
-      const groupName = (groupSelect?.value || '').trim();
-      const answer = (answerEl?.value || '').trim();
-
+    // ✅ pilih topik untuk kelompok (terkunci)
+    function startTopicForGroup(topicId){
+      const groupName = (selectedGroup || '').trim();
       if(!groupName){
         showToast('Pilih kelompok terlebih dahulu.');
         return;
       }
-      if(!answer){
-        showToast('Jawaban masih kosong.');
+
+      const g = ensureGroupExists(groupName);
+
+      if(g.picked_topic && g.picked_topic !== topicId){
+        const tName = topics.find(x=>x.id===g.picked_topic)?.name || g.picked_topic;
+        showToast(`Kelompok ini sudah memilih topik: ${tName}. Tidak bisa ganti.`);
         return;
       }
 
-      const groupObj = ensureGroupExists(groupName);
+      // ✅ (BARU) cek kuota topik: max 3 kelompok (kecuali grup ini sudah pilih topik yang sama)
+      const usedCount = countGroupsPickingTopic(topicId);
+      const alreadyThisTopic = (g.picked_topic === topicId);
 
-      // (REVISI) cegah submit kalau topik sudah benar
-      const already = groupObj.topics && groupObj.topics[selectedTopic];
-      if(already && already.correct){
-        showToast('Topik ini sudah benar untuk kelompok ini. Tidak bisa dijawab ulang.');
+      if(!alreadyThisTopic && usedCount >= MAX_GROUPS_PER_TOPIC){
+        const tName = topics.find(x=>x.id===topicId)?.name || topicId;
+        showToast(`Topik "${tName}" sudah penuh (maks ${MAX_GROUPS_PER_TOPIC} kelompok). Pilih topik lain.`);
+        return;
+      }
+
+      g.picked_topic = topicId;
+
+      // init topic container
+      if(!g.topics[topicId]) g.topics[topicId] = { cases:{} };
+      if(!g.topics[topicId].cases) g.topics[topicId].cases = {};
+
+      g.last_updated = Date.now();
+      saveGame();
+
+      navigateTo('answer', { topic: topicId, group: groupName });
+    }
+
+    // ✅ SUBMIT PER KASUS (INI YANG DIBUTUHKAN)
+    // - tiap box punya tombol koreksi sendiri
+    // - kalau benar -> otomatis masuk RANK
+    // - dari rank: lanjut kasus berikut / selesai ke menu
+    function submitSingleCase(event, caseId){
+      event?.preventDefault?.();
+
+      if(!selectedGroup){
+        showToast('Kelompok belum dipilih.');
         navigateTo('topics');
         return;
       }
 
-      const prev = groupObj.topics[selectedTopic];
-      const attempts = (prev?.attempts || 0) + 1;
+      const groupName = String(selectedGroup).trim();
+      const g = ensureGroupExists(groupName);
 
-      const result = evaluateAnswer(selectedTopic, answer);
-
-      if(result.ok){
-        const timeTaken = Date.now() - topicStartTime;
-
-        groupObj.topics[selectedTopic] = {
-          correct: true,
-          time_taken: timeTaken,
-          attempts,
-          answer,
-          matched: result.matched,
-          timestamp: Date.now()
-        };
-
-        recalcTotalsForGroup(groupObj);
-        saveGame();
-
-        hintBox.className = 'hint ok';
-        hintBox.innerHTML = `✅ <b>Benar!</b> Kata kunci terdeteksi: <b>${escapeHtml(result.matched.slice(0,6).join(', '))}${result.matched.length>6?'...':''}</b>.`;
-
-        // (REVISI) masuk rank dari jawaban benar
-        showToast('✅ Jawaban benar! Masuk ke Rank...');
-        setTimeout(()=>navigateTo('ranking', { from:'answer' }), 900);
+      if(g.picked_topic && g.picked_topic !== selectedTopic){
+        showToast('Topik tidak sesuai pilihan kelompok.');
+        navigateTo('topics');
         return;
       }
 
-      groupObj.topics[selectedTopic] = {
+      const casesDef = TOPIC_CASES[selectedTopic] || [];
+      const cIndex = casesDef.findIndex(x => x.id === caseId);
+      if(cIndex < 0){
+        showToast('Kasus tidak valid.');
+        return;
+      }
+
+      if(!g.topics[selectedTopic]) g.topics[selectedTopic] = { cases:{} };
+      if(!g.topics[selectedTopic].cases) g.topics[selectedTopic].cases = {};
+
+      const casesData = g.topics[selectedTopic].cases;
+
+      const prev = casesData[caseId];
+      if(prev && prev.correct){
+        showToast('Kasus ini sudah benar. Tidak bisa dijawab ulang.');
+        renderPage();
+        return;
+      }
+
+      const el = document.getElementById(`case_${caseId}`);
+      const ans = (el?.value || '').trim();
+      if(!ans){
+        showToast('Jawaban masih kosong.');
+        return;
+      }
+
+      // start time per kasus (biar waktu dihitung sejak mulai buka topik, dan makin cepat makin bagus)
+      if(!casesData[caseId]) casesData[caseId] = {};
+      if(!casesData[caseId].startedAt) casesData[caseId].startedAt = Date.now();
+
+      const attempts = (prev?.attempts || 0) + 1;
+
+      // ✅ (REVISI) sekarang evaluasi pakai topic + caseId
+      const res = evaluateAnswer(selectedTopic, caseId, ans);
+
+      if(res.ok){
+        const timeTaken = Date.now() - (casesData[caseId].startedAt || Date.now());
+
+        casesData[caseId] = {
+          correct: true,
+          attempts,
+          answer: ans,
+          matched: res.matched,
+          time_taken: timeTaken,
+          timestamp: Date.now(),
+          startedAt: casesData[caseId].startedAt
+        };
+
+        // update total (untuk ranking live)
+        const correctCount = casesDef.filter(c => casesData[c.id]?.correct).length;
+        const timeSum = casesDef.reduce((s,c)=> s + (casesData[c.id]?.time_taken || 0), 0);
+
+        g.total_correct = correctCount;
+        g.total_time = timeSum;
+        g.last_updated = Date.now();
+        saveGame();
+
+        const hint = document.getElementById(`hint_${caseId}`);
+        if(hint){
+          hint.className = 'hint ok';
+          hint.innerHTML = `✅ <b>Benar!</b> Kata kunci: <b>${escapeHtml(res.matched.slice(0,6).join(', '))}${res.matched.length>6?'...':''}</b>.`;
+        }
+
+        // ✅ (BARU) tentukan kasus berikutnya untuk tombol di Rank
+        const nextDef = casesDef[cIndex + 1];
+        afterRankAction = {
+          topic: selectedTopic,
+          group: groupName,
+          nextCaseId: nextDef ? nextDef.id : null,
+          isDone: !nextDef
+        };
+
+        showToast(`✅ Kasus ${cIndex+1} benar! Masuk Rank...`);
+        setTimeout(()=>navigateTo('ranking', { from:'answer' }), 700);
+        return;
+      }
+
+      // salah
+      casesData[caseId] = {
         ...(prev || {}),
         correct: false,
         attempts,
-        answer,
-        timestamp: Date.now()
+        answer: ans,
+        timestamp: Date.now(),
+        startedAt: casesData[caseId].startedAt || Date.now()
       };
-      recalcTotalsForGroup(groupObj);
+
+      g.last_updated = Date.now();
       saveGame();
 
-      hintBox.className = 'hint bad';
-      hintBox.innerHTML = `❌ <b>Belum tepat.</b> Kurang <b>${result.needed}</b> kata kunci lagi. Coba lengkapi jawabanmu. (Percobaan: <b>${attempts}</b>)`;
+      const hint = document.getElementById(`hint_${caseId}`);
+      if(hint){
+        hint.className = 'hint bad';
+        hint.innerHTML = `❌ <b>Belum tepat.</b> Kurang <b>${res.needed}</b> kata kunci lagi. (Percobaan: <b>${attempts}</b>)`;
+      }
 
       showToast('Jawaban belum tepat, coba lagi.');
+      renderPage();
+    }
+
+    // ✅ (BARU) lanjut setelah halaman rank: ke kasus berikutnya / selesai ke menu
+    function continueAfterRank(){
+      if(!afterRankAction){
+        navigateTo('menu');
+        return;
+      }
+
+      const { topic, group, nextCaseId, isDone } = afterRankAction;
+
+      if(isDone){
+        afterRankAction = null;
+        showToast('✅ Semua kasus selesai!');
+        navigateTo('menu');
+        return;
+      }
+
+      navigateTo('answer', { topic, group });
+
+      setTimeout(()=>{
+        const ta = document.getElementById(`case_${nextCaseId}`);
+        if(ta){
+          ta.scrollIntoView({ behavior:'smooth', block:'center' });
+          ta.focus();
+        }
+      }, 80);
+
+      afterRankAction = null;
     }
 
     // ===============================
@@ -1175,36 +1403,49 @@
       }
 
       const rowsRanking = computeRanking();
-      const totalTopics = topics.length;
 
+      // Sheet 1: Ranking (live)
       const sheet1 = [];
-      sheet1.push(['Rank','Kelompok','Topik Selesai','Total Benar','Total Waktu (detik)']);
+      sheet1.push(['Rank','Kelompok','Topik','Progress Kasus','Total Waktu (detik)']);
       rowsRanking.forEach((r, i)=>{
         sheet1.push([
           i+1,
           r.group,
-          `${r.topicsDone}/${totalTopics}`,
-          r.totalCorrect,
+          r.topicName,
+          r.progress,
           Math.round((r.totalTime||0)/1000)
         ]);
       });
 
+      // Sheet 2: Jawaban per kasus
       const sheet2 = [];
       sheet2.push([
-        'Kelompok','Topik','Status','Percobaan','Waktu (detik)','Jawaban','Kata Kunci Terdeteksi','Timestamp'
+        'Kelompok','Topik','Kasus','Status','Percobaan','Waktu (detik)','Jawaban','Kata Kunci Terdeteksi','Timestamp'
       ]);
 
       for(const [groupName, g] of Object.entries(gameState.groups || {})){
-        const perTopic = g.topics || {};
-        for(const t of topics){
-          const entry = perTopic[t.id];
+        const picked = g.picked_topic;
+        const topicMeta = topics.find(x=>x.id===picked);
+        const topicName = topicMeta?.name || (picked || '');
+
+        if(!picked){
+          sheet2.push([groupName,'(belum pilih)','', '', '', '', '', '', '']);
+          continue;
+        }
+
+        const casesDef = TOPIC_CASES[picked] || [];
+        const casesData = g.topics?.[picked]?.cases || {};
+
+        casesDef.forEach((c, idx)=>{
+          const entry = casesData[c.id];
           if(!entry){
-            sheet2.push([groupName, t.name, 'Belum dikerjakan', '', '', '', '', '']);
-            continue;
+            sheet2.push([groupName, topicName, `Kasus ${idx+1}`, 'Belum dikerjakan', '', '', '', '', '']);
+            return;
           }
           sheet2.push([
             groupName,
-            t.name,
+            topicName,
+            `Kasus ${idx+1}`,
             entry.correct ? 'Benar' : 'Salah',
             entry.attempts || 0,
             entry.time_taken ? Math.round(entry.time_taken/1000) : '',
@@ -1212,16 +1453,16 @@
             (entry.matched || []).join(', '),
             entry.timestamp ? new Date(entry.timestamp).toLocaleString('id-ID') : ''
           ]);
-        }
+        });
       }
 
       const wb = XLSX.utils.book_new();
       const ws1 = XLSX.utils.aoa_to_sheet(sheet1);
       const ws2 = XLSX.utils.aoa_to_sheet(sheet2);
 
-      ws1['!cols'] = [{wch:8},{wch:18},{wch:14},{wch:12},{wch:16}];
+      ws1['!cols'] = [{wch:8},{wch:18},{wch:16},{wch:14},{wch:18}];
       ws2['!cols'] = [
-        {wch:18},{wch:14},{wch:12},{wch:10},{wch:12},{wch:60},{wch:30},{wch:22}
+        {wch:18},{wch:14},{wch:10},{wch:14},{wch:10},{wch:12},{wch:60},{wch:30},{wch:22}
       ];
 
       XLSX.utils.book_append_sheet(wb, ws1, 'Ranking');
@@ -1232,11 +1473,9 @@
       showToast('⬇️ Excel berhasil dibuat');
     }
 
-    // ===============================
-    // 13) INIT
-    // ===============================
     loadTeacherSession();
     loadGame();
+    loadSelectedGroup(); // ✅ (BARU) auto ingat pilihan kelompok
     renderPage();
   </script>
 </body>
