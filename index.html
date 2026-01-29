@@ -292,61 +292,156 @@
     // ===============================
     const GROUP_OPTIONS = Array.from({length: 10}, (_, i) => `Kelompok ${i+1}`);
 
-    // ✅ (REVISI) KEYWORDS PER KASUS (c1/c2/c3) DI DALAM TOPIK
-    const TOPIC_RULES = {
-      ginjal: {
-        cases: {
-          c1: { minMatch: 2, keywords: ["filtrasi","glomerulus","nefron"] },
-          c2: { minMatch: 2, keywords: ["reabsorpsi","tubulus","air","garam"] },
-          c3: { minMatch: 2, keywords: ["augmentasi","urea","urin","osmoregulasi"] },
-        }
-      },
-      hati: {
-        cases: {
-          c1: { minMatch: 2, keywords: ["detoksifikasi","racun","zat berbahaya"] },
-          c2: { minMatch: 2, keywords: ["amonia","urea","metabolisme"] },
-          c3: { minMatch: 2, keywords: ["empedu","bilirubin"] },
-        }
-      },
-      paru: {
-        cases: {
-          c1: { minMatch: 1, keywords: ["karbon dioksida","co2"] },
-          c2: { minMatch: 1, keywords: ["uap air","pernapasan"] },
-          c3: { minMatch: 1, keywords: ["alveolus","difusi"] },
-        }
-      },
-      kulit: {
-        cases: {
-          c1: { minMatch: 1, keywords: ["keringat","kelenjar keringat"] },
-          c2: { minMatch: 1, keywords: ["urea","garam","air"] },
-          c3: { minMatch: 1, keywords: ["termoregulasi","suhu"] },
-        }
+        // ✅ (REVISI) KEYWORDS PER TEXTBOX (A/B/C) DI DALAM TOPIK
+  const TOPIC_RULES = {
+    ginjal: {
+      boxes: {
+        A: { minMatch: 3, keywords: ["filtrasi","reabsorpsi","penyerapan kembali","augmentasi","sekresi"] },
+        B: { minMatch: 3, keywords: [
+          "darah disaring",
+          "penyaringan darah",
+          "darah masuk ke ginjal lalu disaring",
+          "penyerapan kembali",
+          "zat penting diambil lagi",
+          "air dan zat yang masih dibutuhkan",
+          "zat sisa dikeluarkan",
+          "pembuangan zat sisa",
+          "pembuangan akhir",
+        ] },
+        C: { minMatch: 2, keywords: [
+          "glomelurus",
+          "tubulus ginjal",
+          "gangguan tubulus ginjal",
+          "reabsorpsi tidak optimal",
+          "korteks mengandung glomelurus dan tubulus awal",
+          "korteks menentukan kualitas filtrasi",
+          "medula dan duktur kolektivus",
+          "kepekatan urin",
+          "warna urin",
+          "kerusakan",
+          "pembentukan urin",
+          "kesimbangan cairan tubuh",
+          "gejala edema",
+        ] },
       }
-    };
+    },
+    hati: {
+      boxes: {
+        A: { minMatch: 4, keywords: [
+          "mengeluarkan",
+          "zat sisa",
+          "detoksifikasi",
+          "menetralkan racun",
+          "mengubah sisa metabolisme protein",
+          "keseimbangan cairan",
+          "zat terlarut",
+          "dalam darah",
+        ] },
+        B: { minMatch: 5, keywords: [
+          "hati", 
+          "ginjal",
+          "amonia",
+          "urea",
+          "nefron",
+          "urin",
+          "sistem ekskresi",
+          "pembuangan zat sisa",
+          "metabolisme protein",
+          "menyaring darah",
+          "pembentukan urin",
+          "amonia menjadi urea",
+          "BAK",
+          "buang air kecil",
+          "gangguan", 
+          "penyaringan",
+          "iritasi saluran kemih",
+        ] },
+        C: { minMatch: 9, keywords: [
+          "siklusurea",
+          "detoksifikasi",
+          "bilirubin",
+          "toksin",
+          "amonia",
+          "hepatosit",
+          "ikterus",
+          "ginjal",
+          "urea",
+          "empedu"
+        ] },
+      }
+    },
+    paru: {
+      boxes: {
+        A: { minMatch: 4, keywords: [
+          "Alveolus", 
+          "sistem ekskresi", 
+          "pertukaran gas", 
+          "karbon dioksida", 
+          "uap air", 
+          "difusi", 
+          "kapiler darah", 
+          "ekspirasi", 
+          "keseimbangan asam-basa", 
+          "gangguan paru-paru",
+          "dinding tipis",
+          "sesak napas",
+          "mudah lelah",
+          "keseimbangan asam-basa",
+          "bronkitis",
+          "emfisema",
+        ] },
+      }
+    },
+    kulit: {
+      boxes: {
+        A: { minMatch: 7, keywords: [
+          "lapisan",
+          "dermis",
+          "kelenjar keringat",
+          "kelenjar ekrin",
+          "keringat dialirkan ke pori-pori epidermis",
+          "epidermis",
+          "suhu tubuh",
+          "kelenjar keringat rusak",
+        ] },
+        B: { minMatch: 5, keywords: [
+          "bakteri",
+          "zat volatil",
+          "ekrin dan apokrin",
+          "kelenjar apokrin",
+          "aktivitas hormon",
+          "makanan",
+          "stres",
+          "peningkatan hormon",
+          "metabolisme tubuh",
+        ] },
+        C: { minMatch: 1, keywords: ["termoregulasi","suhu"] },
+      }
+    }
+  };
 
-    // ✅ 3 kasus per topik (bisa ditambah jadi 4 kalau mau)
-    const TOPIC_CASES = {
-      ginjal: [
-        { id: "c1", title: "Kasus 1" },
-        { id: "c2", title: "Kasus 2" },
-        { id: "c3", title: "Kasus 3" },
-      ],
-      hati: [
-        { id: "c1", title: "Kasus 1" },
-        { id: "c2", title: "Kasus 2" },
-        { id: "c3", title: "Kasus 3" },
-      ],
-      paru: [
-        { id: "c1", title: "Kasus 1" },
-        { id: "c2", title: "Kasus 2" },
-        { id: "c3", title: "Kasus 3" },
-      ],
-      kulit: [
-        { id: "c1", title: "Kasus 1" },
-        { id: "c2", title: "Kasus 2" },
-        { id: "c3", title: "Kasus 3" },
-      ],
-    };
+  // ✅ (REVISI) 3 textbox per topik: A/B/C
+  const TOPIC_CASES = {
+    ginjal: [
+      { id: "A", title: "Textbox A" },
+      { id: "B", title: "Textbox B" },
+      { id: "C", title: "Textbox C" },
+    ],
+    hati: [
+      { id: "A", title: "Textbox A" },
+      { id: "B", title: "Textbox B" },
+      { id: "C", title: "Textbox C" },
+    ],
+    paru: [
+      { id: "A", title: "Textbox A" },
+    ],
+    kulit: [
+      { id: "A", title: "Textbox A" },
+      { id: "B", title: "Textbox B" },
+      { id: "C", title: "Textbox C" },
+    ],
+  };
+
 
     // ✅ (BARU) 1 topik boleh dipilih max 3 kelompok
     const MAX_GROUPS_PER_TOPIC = 3;
@@ -354,8 +449,8 @@
     // ===============================
     // 2) LOGIN GURU
     // ===============================
-    const TEACHER_USERNAME = 'admin';
-    const TEACHER_PASSWORD = 'admin123';
+    const TEACHER_USERNAME = 'minwaa';
+    const TEACHER_PASSWORD = 'bismillahlancar';
     const TEACHER_SESSION_KEY = 'excretix_teacher_session';
 
     // ===============================
@@ -371,6 +466,7 @@
     // ===============================
     let currentPage = 'home';
     let selectedTopic = null;
+    let selectedBox = null; // ✅ (BARU) A/B/C yang dipilih kelompok (1 saja)
     let selectedGroup = null; // ✅ kelompok yg sedang mengerjakan
     let topicStartTime = null;
 
@@ -419,24 +515,25 @@
         .trim();
     }
 
-    // ✅ (REVISI) evaluasi kata kunci sekarang PER KASUS
-    function evaluateAnswer(topicId, caseId, answer){
-      const rule = TOPIC_RULES?.[topicId]?.cases?.[caseId];
-      if(!rule) return { ok:false, matched:[], needed:1, minMatch:1 };
+    // ✅ (REVISI) evaluasi kata kunci sekarang PER TEXTBOX (A/B/C)
+  function evaluateAnswer(topicId, boxId, answer){
+    const rule = TOPIC_RULES?.[topicId]?.boxes?.[boxId];
+    if(!rule) return { ok:false, matched:[], needed:1, minMatch:1 };
 
-      const norm = normalizeText(answer);
-      const matched = [];
+    const norm = normalizeText(answer);
+    const matched = [];
 
-      for(const kw of (rule.keywords || [])){
-        const needle = normalizeText(kw);
-        if(needle && norm.includes(needle)){
-          matched.push(kw);
-        }
+    for(const kw of (rule.keywords || [])){
+      const needle = normalizeText(kw);
+      if(needle && norm.includes(needle)){
+        matched.push(kw);
       }
-
-      const minMatch = rule.minMatch || 1;
-      return { ok: matched.length >= minMatch, matched, needed: Math.max(0, minMatch - matched.length), minMatch };
     }
+
+    const minMatch = rule.minMatch || 1;
+    return { ok: matched.length >= minMatch, matched, needed: Math.max(0, minMatch - matched.length), minMatch };
+  }
+
 
     function formatMs(ms){
       const s = Math.round(ms/1000);
@@ -499,9 +596,7 @@
       navigateTo('role');
     }
 
-    // ===============================
-    // 8) NAVIGATE + GUARD
-    // ===============================
+
     function navigateTo(page, data=null){
       if(page === 'admin' && !isAdmin){
         showToast('Akses guru ditolak. Silakan login.');
@@ -519,58 +614,47 @@
       if(data && data.topic) selectedTopic = data.topic;
       if(data && data.group){
         selectedGroup = data.group;
-        saveSelectedGroup(); // ✅ supaya konsisten keingat juga
+        saveSelectedGroup();
       }
-
-      if(page === 'answer') topicStartTime = Date.now();
+      // ✅ tangkap box dari navigateTo
+      if(data && data.box) selectedBox = data.box;
 
       renderPage();
       window.scrollTo({top:0, behavior:"smooth"});
     }
 
-    // ===============================
-    // 9) RANKING (LIVE PER KASUS)
-    // ===============================
-    function computeRanking(){
-      const rows = [];
+  function computeRanking(){
+    const rows = [];
 
-      for(const [groupName, g] of Object.entries(gameState.groups)){
-        const picked = g.picked_topic;
-        if(!picked) continue;
+    for(const [groupName, g] of Object.entries(gameState.groups)){
+      const pickedTopic = g.picked_topic;
+      if(!pickedTopic) continue;
 
-        const casesDef = TOPIC_CASES[picked] || [];
-        const casesData = g.topics?.[picked]?.cases || {};
+      const pickedBox = g?.topics?.[pickedTopic]?.picked_box || null;
+      const caseEntry = pickedBox ? g?.topics?.[pickedTopic]?.cases?.[pickedBox] : null;
 
-        let casesCorrect = 0;
-        let totalTime = 0;
+      const casesCorrect = (caseEntry && caseEntry.correct) ? 1 : 0;
+      const totalTime = (caseEntry && caseEntry.correct) ? (caseEntry.time_taken || 0) : 0;
 
-        for(const c of casesDef){
-          const e = casesData[c.id];
-          if(e && e.correct){
-            casesCorrect += 1;
-            totalTime += (e.time_taken || 0);
-          }
-        }
-
-        rows.push({
-          group: groupName,
-          topicId: picked,
-          topicName: topics.find(x=>x.id===picked)?.name || picked,
-          progress: `${casesCorrect}/${casesDef.length}`,
-          casesCorrect,
-          totalTime,
-          last: g.last_updated || 0
-        });
-      }
-
-      rows.sort((a,b)=>{
-        if(b.casesCorrect !== a.casesCorrect) return b.casesCorrect - a.casesCorrect;
-        if(a.totalTime !== b.totalTime) return a.totalTime - b.totalTime;
-        return (b.last - a.last);
+      rows.push({
+        group: groupName,
+        topicId: pickedTopic,
+        topicName: topics.find(x=>x.id===pickedTopic)?.name || pickedTopic,
+        progress: `${casesCorrect}/1`,
+        casesCorrect,
+        totalTime,
+        last: g.last_updated || 0
       });
-
-      return rows;
     }
+
+    rows.sort((a,b)=>{
+      if(b.casesCorrect !== a.casesCorrect) return b.casesCorrect - a.casesCorrect;
+      if(a.totalTime !== b.totalTime) return a.totalTime - b.totalTime;
+      return (b.last - a.last);
+    });
+
+    return rows;
+  }
 
     // ===============================
     // 10) RENDER
@@ -632,7 +716,7 @@
                     <div style="font-size:64px; margin-bottom:12px;">👩‍🏫</div>
                     <h3>GURU</h3>
                     <p>${isAdmin ? "Masuk ke dashboard guru." : "Masuk menggunakan akun guru."}</p>
-                    <button class="btn cta">${isAdmin ? "Dashboard" : "MASUK"}</button>
+                    <button class="btn cta">${isAdmin ? "MASUK" : "MASUK"}</button>
                   </div>
                 </div>
 
@@ -655,30 +739,30 @@
                 <div class="menu-card" onclick="navigateTo('rules')">
                   <h3>Petunjuk</h3>
                   <p>Petunjuk bermain agar petualanganmu lebih lancar.</p>
-                  <button class="btn cta">Detail</button>
-                </div>
-
-                <div class="menu-card" onclick="navigateTo('maps')">
-                  <h3>Peta</h3>
-                  <p>Peta petunjuk untuk menemukan card permasalahan.</p>
-                  <button class="btn cta">Lihat</button>
+                  <button class="btn cta">DETAIL</button>
                 </div>
 
                 <div class="menu-card" onclick="navigateTo('topics')">
                   <h3>Topik</h3>
                   <p>Pilih topik ekskresi untuk tiap kelompok (1 topik per kelompok).</p>
-                  <button class="btn cta">Main</button>
+                  <button class="btn cta">MAIN</button>
+                </div>
+                
+                <div class="menu-card" onclick="navigateTo('maps')">
+                  <h3>Peta</h3>
+                  <p>Peta petunjuk untuk menemukan card permasalahan.</p>
+                  <button class="btn cta">LIHAT</button>
                 </div>
 
                 <div class="menu-card" onclick="navigateTo('ranking',{from:'menu'})">
                   <h3>Peringkat</h3>
                   <p>Lihat peringkat live berdasarkan kasus benar & waktu.</p>
-                  <button class="btn cta">Lihat</button>
+                  <button class="btn cta">LIHAT</button>
                 </div>
               </div>
 
               <div class="home-back">
-                <button class="btn btn-home" onclick="navigateTo('home')">MENU</button>
+                <button class="btn btn-home" onclick="navigateTo('home')">BERANDA</button>
               </div>
             </div>
           </section>
@@ -692,15 +776,13 @@
               <h1 class="page-title">PETUNJUK</h1>
 
               <div class="panel" style="max-width:860px; margin:0 auto;">
-                <h2>Cara Bermain</h2>
-
                 <div style="line-height:1.9; font-weight:800; color:rgba(31,59,40,.78);">
-                  <p style="margin-bottom:12px;">📌 Buka <b>Peta</b> → cari card permasalahan (fisik) → lalu jawab di <b>Topik</b>.</p>
-                  <p style="margin-bottom:12px;">📌 Pilih <b>Kelompok</b> → pilih <b>1 Topik</b> (tidak bisa ganti).</p>
-                  <p style="margin-bottom:12px;">📌 Di dalam topik ada <b>3 kasus</b>. Jawab per kasus.</p>
-                  <p style="margin-bottom:12px;">📌 Setiap kali <b>kasus berhasil benar</b> kamu otomatis masuk ke <b>Rank</b>.</p>
-                  <p style="margin-bottom:12px;">🏆 Urutan: <b>kasus benar terbanyak</b> → <b>total waktu tercepat</b>.</p>
-
+                  <p style="margin-bottom:12px;"> (1) <b>bagi kelompok dulu yaa. Jangan lupa buat rencana investigasinya.</p>
+                  <p style="margin-bottom:12px;"> (2) Kalau sudah, <b>lanjut pilih topik sesukamu. </b> Satu kelompok, satu topik yaa. Rencanain matang-matang.</p>
+                  <p style="margin-bottom:12px;"> (3) Sudah pilih topiknya? <b> Lanjut lihat peta untuk menemukan kartu yang akan kalian selesaikan. </b> Perhatikan topik yang kamu pilih dengan keterangan pada kartunya ya. Jangan sampai salah!.</p>
+                  <p style="margin-bottom:12px;"> (4) Sudah ketemu kartunya? <b> Ayo selesaikan kasusnya. Usahakan sesuai dengan kata kuncinya ya. </b> Jadi, tulis aja kata kuncinya. <b> Kalau cocok, kalian bisa cek peringkat kelompok sesuai dengan waktu dan ketepatan jawaban. </b>.</p>
+                  <p style="margin-bottom:12px;"> (5) Sudah berhasil menyelesaikan dan dapat peringkat? <b> Ayo lanjutkan ke tahap berikutnya. </b> Cek perintah LKPD yang dibawa anggota teman kalian ya. <b> Anggota yang memegang LKPD berada di kelas.</p>
+                  <p style="margin-bottom:12px;"> SEMANGAT!!! <b> Ingat!!! Waktu terus berjalan, jangan sampai kehabisan waktu yaaa!!!</p>
                   <div class="info-box">💡 Tips: Semakin cepat kasus menjadi benar, ranking akan naik.</div>
                 </div>
 
@@ -722,7 +804,7 @@
               <div class="panel" style="max-width:980px; margin:0 auto;">
                 <h2>Peta Petunjuk</h2>
                 <div class="muted" style="margin-top:4px;">
-                  Gunakan peta untuk menemukan card permasalahan (fisik). Setelah itu, jawab di menu <b>Topik</b>.
+                  Gunakan peta untuk menemukan kartu permasalahan (ExcretiX Card). Setelah itu, jawab di menu <b>Topik</b>.
                 </div>
 
                 <div class="map-image-wrap">
@@ -782,7 +864,7 @@
 
                 <div class="text-center" style="margin-top:18px;">
                   <button class="btn btn-pill btn-primary" onclick="navigateTo('menu')">MENU</button>
-                  <button class="btn btn-pill btn-ghost" style="margin-left:10px;" onclick="navigateTo('ranking',{from:'menu'})">Lihat Rank</button>
+                  <button class="btn btn-pill btn-ghost" style="margin-left:10px;" onclick="navigateTo('ranking',{from:'menu'})">PERINGKAT</button>
                 </div>
               </div>
             </div>
@@ -790,86 +872,139 @@
         `;
       }
 
-      // ✅ ANSWER: BOX PER KASUS + textarea di dalam box + submit per kasus
-      else if(currentPage === 'answer'){
+      // ✅ (BARU) CASES: pilih 1 kasus A/B/C setelah pilih topik
+      else if(currentPage === 'cases'){
         const t = topics.find(x=>x.id===selectedTopic) || {name:'', icon:'📌'};
-        const rule = TOPIC_RULES?.[selectedTopic] || { cases:{} }; // ✅ (REVISI) aturan topik sekarang berisi cases
         const casesDef = TOPIC_CASES[selectedTopic] || [];
 
         const g = selectedGroup ? gameState.groups[selectedGroup] : null;
-        const casesData = g?.topics?.[selectedTopic]?.cases || {};
-
-        const correctCount = casesDef.filter(c => casesData[c.id]?.correct).length;
+        const pickedBox = g?.topics?.[selectedTopic]?.picked_box || null;
 
         content = `
           <section class="page">
-            <div class="container">
-              <h1 class="page-title">Topik: ${t.name}</h1>
+             <div class="container">
+             <h1 class="page-title">PILIH KASUS</h1>
 
-              <div class="panel" style="max-width:980px; margin:0 auto;">
-                <div class="text-center" style="margin-bottom:10px;">
-                  <div style="font-size:64px">${t.icon}</div>
+            <div class="panel" style="max-width:980px;margin:0 auto;">
+              <div class="text-center" style="margin-bottom:10px;">
+              <div style="font-size:64px">${t.icon}</div>
+              <div class="muted">
+                Topik: <b>${escapeHtml(t.name)}</b> • Kelompok: <b>${escapeHtml(selectedGroup || '')}</b>
+              </div>
+            </div>
+
+            <div class="info-box" style="margin-top:0;">
+              ✅ Setiap kelompok hanya boleh memilih <b>1 kasus</b> (A/B/C) dan <b>tidak bisa ganti</b>.
+            </div>
+
+            <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,260fr)); justify-content:center; gap:16px; margin-top:16px;">
+              ${casesDef.map((c)=> {
+                const locked = !!pickedBox && pickedBox !== c.id;
+                const isChosen = pickedBox === c.id;
+
+                return `
+                  <div class="menu-card"
+                      style="min-height:220px; opacity:${locked?'.75':'1'}"
+                      onclick="${locked ? '' : `pickCaseForGroup('${c.id}')`}">
+                    <div style="font-size:58px;margin-bottom:10px">🧩</div>
+                    <h3 style="margin-bottom:6px">${escapeHtml(c.title)} (${escapeHtml(c.id)})</h3>
+                    <p style="margin-bottom:10px">${isChosen ? '✅ Sudah dipilih' : 'Pilih kasus ini untuk dikerjakan.'}</p>
+
+                    <button class="btn cta" ${locked ? 'disabled style="opacity:.6;cursor:not-allowed"' : ''}>
+                      ${isChosen ? 'Terpilih' : 'Pilih'}
+                    </button>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+
+              <div class="text-center" style="margin-top:18px;">
+                <button class="btn btn-pill btn-primary" onclick="navigateTo('topics')">TOPIK</button>
+                <button class="btn btn-pill btn-ghost" style="margin-left:10px;" onclick="navigateTo('menu')">MENU</button>
+              </div>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    else if(currentPage === 'answer'){
+      const t = topics.find(x=>x.id===selectedTopic) || {name:'', icon:'📌'};
+      const rule = TOPIC_RULES?.[selectedTopic] || { boxes:{} };
+      const casesDef = TOPIC_CASES[selectedTopic] || [];
+
+      const g = selectedGroup ? gameState.groups[selectedGroup] : null;
+      const pickedBox = g?.topics?.[selectedTopic]?.picked_box || selectedBox || null;
+
+      // guard: kalau belum pilih A/B/C, arahkan ke halaman cases
+      if(!pickedBox){
+        setTimeout(()=>navigateTo('cases', { topic: selectedTopic, group: selectedGroup }), 0);
+        content = `<section class="page"><div class="container"><div class="panel">Memuat...</div></div></section>`;
+        app.innerHTML = content;
+        return;
+      }
+
+      const casesData = g?.topics?.[selectedTopic]?.cases || {};
+      const prev = casesData[pickedBox];
+      const locked = !!(prev && prev.correct);
+      const prevVal = prev?.answer || '';
+      const attempts = prev?.attempts || 0;
+
+      const boxMeta = casesDef.find(x=>x.id===pickedBox) || { id: pickedBox, title: `Textbox ${pickedBox}` };
+      const boxRule = rule?.boxes?.[pickedBox];
+      const minMatchText = boxRule?.minMatch ? `Minimal cocok: <b>${boxRule.minMatch}</b>` : '';
+
+      content = `
+        <section class="page">
+          <div class="container">
+            <h1 class="page-title">Topik: ${t.name}</h1>
+
+            <div class="panel" style="max-width:980px; margin:0 auto;">
+              <div class="text-center" style="margin-bottom:10px;">
+                <div style="font-size:64px">${t.icon}</div>
+                <div class="muted">
+                  Kelompok: <b>${escapeHtml(selectedGroup || '')}</b> • Kasus dipilih: <b>${escapeHtml(pickedBox)}</b> • Progress: <b>${locked ? '1/1' : '0/1'}</b>
+                </div>
+              </div>
+
+              <div class="info-box" style="margin-top:0;">
+                📝 Sistem mengecek kata kunci sesuai kasus <b>${escapeHtml(pickedBox)}</b>. ${minMatchText ? `(${minMatchText})` : ''}
+              </div>
+
+              <div class="panel" style="margin-top:14px; background:rgba(255,255,255,.50);">
+                <div class="flex-between">
+                  <div style="font-weight:900; font-size:18px;">${escapeHtml(boxMeta.title)} (${escapeHtml(pickedBox)})</div>
                   <div class="muted">
-                    Kelompok: <b>${escapeHtml(selectedGroup || '')}</b> • Progress:
-                    <b>${correctCount}/${casesDef.length}</b>
+                    ${locked
+                      ? `✅ Benar • Waktu: <b>${formatMs(prev.time_taken||0)}</b> • Percobaan: <b>${attempts}</b>`
+                      : (attempts>0 ? `❌ Belum tepat • Percobaan: <b>${attempts}</b>` : `Belum dikerjakan`)
+                    }
                   </div>
                 </div>
 
-                <!-- ✅ (REVISI) info umum (minMatch beda-beda per kasus) -->
-                <div class="info-box" style="margin-top:0;">
-                  📝 Sistem akan mengecek kata kunci sesuai <b>kasus</b>. (Setiap kasus punya minimal cocok sendiri.)
+                <div style="margin-top:12px;">
+                  <textarea id="case_${escapeHtml(pickedBox)}" rows="6" placeholder="Tulis jawaban kasus ${escapeHtml(pickedBox)}..." ${locked?'disabled':''}>${escapeHtml(prevVal)}</textarea>
+                  <div id="hint_${escapeHtml(pickedBox)}" class="hint"></div>
                 </div>
 
-                <div style="margin-top:16px;">
-                  ${casesDef.map((c, idx)=>{
-                    const prev = casesData[c.id];
-                    const locked = !!(prev && prev.correct);
-                    const prevVal = prev?.answer || '';
-                    const attempts = prev?.attempts || 0;
-
-                    // ✅ tampilkan minMatch per kasus (optional, aman)
-                    const caseRule = rule?.cases?.[c.id];
-                    const minMatchText = caseRule?.minMatch ? `• Minimal cocok: <b>${caseRule.minMatch}</b>` : '';
-
-                    return `
-                      <div class="panel" style="margin-top:14px; background:rgba(255,255,255,.50);">
-                        <div class="flex-between">
-                          <div style="font-weight:900; font-size:18px;">${escapeHtml(c.title)} (Kasus ${idx+1})</div>
-                          <div class="muted">
-                            ${locked
-                              ? `✅ Benar • Waktu: <b>${formatMs(prev.time_taken||0)}</b> • Percobaan: <b>${attempts}</b>`
-                              : (attempts>0 ? `❌ Belum tepat • Percobaan: <b>${attempts}</b> ${minMatchText}` : `Belum dikerjakan ${minMatchText}`)
-                            }
-                          </div>
-                        </div>
-
-                        <div style="margin-top:12px;">
-                          <textarea id="case_${escapeHtml(c.id)}" rows="6" placeholder="Tulis jawaban kasus ${idx+1}..." ${locked?'disabled':''}>${escapeHtml(prevVal)}</textarea>
-                          <div id="hint_${escapeHtml(c.id)}" class="hint"></div>
-                        </div>
-
-                        <!-- ✅ (REVISI) HAPUS tombol LIHAT RANK di halaman kasus -->
-                        <div class="flex" style="margin-top:12px;">
-                          <button class="btn btn-pill btn-primary" style="flex:1;" ${locked?'disabled style="flex:1;opacity:.6;cursor:not-allowed"':''}
-                            onclick="submitSingleCase(event, '${c.id}')">
-                            KOREKSI KASUS ${idx+1}
-                          </button>
-                        </div>
-                      </div>
-                    `;
-                  }).join('')}
+                <div class="flex" style="margin-top:12px;">
+                  <button class="btn btn-pill btn-primary" style="flex:1;" ${locked?'disabled style="flex:1;opacity:.6;cursor:not-allowed"':''}
+                    onclick="submitSingleCase(event, '${pickedBox}')">
+                    KOREKSI KASUS ${escapeHtml(pickedBox)}
+                  </button>
                 </div>
+              </div>
 
-                <div class="flex" style="margin-top:16px;">
-                  <button type="button" class="btn btn-pill btn-ghost" onclick="navigateTo('topics')" style="flex:1;">TOPIK</button>
-                  <button type="button" class="btn btn-pill btn-ghost" onclick="navigateTo('menu')" style="flex:1;">MENU</button>
-                </div>
-
+              <div class="flex" style="margin-top:16px;">
+                <button type="button" class="btn btn-pill btn-ghost" onclick="navigateTo('maps')" style="flex:1;">PETA</button>
+                <button type="button" class="btn btn-pill btn-ghost" onclick="navigateTo('cases',{topic:'${selectedTopic}',group:'${escapeHtml(selectedGroup||'')}'})" style="flex:1;">KASUS</button>
+                <button type="button" class="btn btn-pill btn-ghost" onclick="navigateTo('menu')" style="flex:1;">MENU</button>
               </div>
             </div>
-          </section>
-        `;
-      }
+          </div>
+        </section>
+      `;
+    }
 
       else if(currentPage === 'ranking'){
         const rows = computeRanking();
@@ -934,7 +1069,7 @@
                           <button class="btn btn-pill btn-ghost" style="margin-left:10px;" onclick="navigateTo('menu')">← Menu</button>
                         `
                         : `
-                          <button class="btn btn-pill btn-primary" onclick="navigateTo('menu')">← Menu</button>
+                          <button class="btn btn-pill btn-primary" onclick="navigateTo('menu')">MENU</button>
                         `
                     }
                   </div>
@@ -1141,13 +1276,47 @@
       g.last_updated = Date.now();
       saveGame();
 
-      navigateTo('answer', { topic: topicId, group: groupName });
+      navigateTo('cases', { topic: topicId, group: groupName });
     }
 
-    // ✅ SUBMIT PER KASUS (INI YANG DIBUTUHKAN)
-    // - tiap box punya tombol koreksi sendiri
-    // - kalau benar -> otomatis masuk RANK
-    // - dari rank: lanjut kasus berikut / selesai ke menu
+    function pickCaseForGroup(boxId){
+      const groupName = (selectedGroup || '').trim();
+      if(!groupName){
+        showToast('Pilih kelompok terlebih dahulu.');
+        navigateTo('topics');
+        return;
+      }
+
+      const g = ensureGroupExists(groupName);
+
+      if(!g.picked_topic){
+        showToast('Pilih topik terlebih dahulu.');
+        navigateTo('topics');
+        return;
+      }
+
+      const topicId = g.picked_topic;
+
+      if(!g.topics[topicId]) g.topics[topicId] = { cases:{} };
+      if(!g.topics[topicId].cases) g.topics[topicId].cases = {};
+
+      // ✅ terkunci: tidak boleh ganti box
+      const already = g.topics[topicId].picked_box;
+      if(already && already !== boxId){
+        showToast(`Kelompok ini sudah memilih kasus ${already}. Tidak bisa ganti.`);
+        return;
+      }
+
+      g.topics[topicId].picked_box = boxId;
+      g.last_updated = Date.now();
+      saveGame();
+
+      selectedTopic = topicId;
+      selectedBox = boxId;
+
+      navigateTo('answer', { topic: topicId, group: groupName, box: boxId });
+    }
+
     function submitSingleCase(event, caseId){
       event?.preventDefault?.();
 
@@ -1234,9 +1403,9 @@
         afterRankAction = {
           topic: selectedTopic,
           group: groupName,
-          nextCaseId: nextDef ? nextDef.id : null,
-          isDone: !nextDef
-        };
+          nextCaseId: null,
+          isDone: true
+};
 
         showToast(`✅ Kasus ${cIndex+1} benar! Masuk Rank...`);
         setTimeout(()=>navigateTo('ranking', { from:'answer' }), 700);
@@ -1436,16 +1605,18 @@
         const casesDef = TOPIC_CASES[picked] || [];
         const casesData = g.topics?.[picked]?.cases || {};
 
-        casesDef.forEach((c, idx)=>{
-          const entry = casesData[c.id];
-          if(!entry){
-            sheet2.push([groupName, topicName, `Kasus ${idx+1}`, 'Belum dikerjakan', '', '', '', '', '']);
-            return;
-          }
+        const pickedBox = g?.topics?.[picked]?.picked_box || '';
+        const entry = pickedBox ? (g.topics?.[picked]?.cases?.[pickedBox] || null) : null;
+
+        if(!pickedBox){
+          sheet2.push([groupName, topicName, '(belum pilih kasus)', '', '', '', '', '', '']);
+        } else if(!entry){
+          sheet2.push([groupName, topicName, `Kasus ${pickedBox}`, 'Belum dikerjakan', '', '', '', '', '']);
+        } else {
           sheet2.push([
             groupName,
             topicName,
-            `Kasus ${idx+1}`,
+            `Kasus ${pickedBox}`,
             entry.correct ? 'Benar' : 'Salah',
             entry.attempts || 0,
             entry.time_taken ? Math.round(entry.time_taken/1000) : '',
@@ -1453,7 +1624,7 @@
             (entry.matched || []).join(', '),
             entry.timestamp ? new Date(entry.timestamp).toLocaleString('id-ID') : ''
           ]);
-        });
+        }
       }
 
       const wb = XLSX.utils.book_new();
