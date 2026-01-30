@@ -446,6 +446,13 @@
     // ✅ (BARU) 1 topik boleh dipilih max 3 kelompok
     const MAX_GROUPS_PER_TOPIC = 3;
 
+    const TOPIC_GROUP_LIMITS = {
+      ginjal: 3,
+      hati: 3,
+      paru: 1,   // 🔥 paru cuma boleh 1 kelompok
+      kulit: 3
+    };
+
     // ===============================
     // 2) LOGIN GURU
     // ===============================
@@ -808,11 +815,12 @@
                 </div>
 
                 <div class="map-image-wrap">
-                  <img class="map-image" src="assets/peta.png" alt="Peta Petunjuk">
+                  <img class="map-image" src= "peta.png" alt="Peta Petunjuk">
                 </div>
 
                 <div class="text-center" style="margin-top:18px;">
                   <button class="btn btn-pill btn-primary" onclick="navigateTo('menu')">MENU</button>
+                  <button class="btn btn-pill btn-ghost" style="margin-left:10px;" onclick="navigateTo('topics')">TOPIK</button>
                 </div>
               </div>
             </div>
@@ -844,9 +852,11 @@
 
                 <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px;">
                   ${topics.map(t=>{
+                    const limit = TOPIC_GROUP_LIMITS[t.id] ?? MAX_GROUPS_PER_TOPIC;
                     const used = countGroupsPickingTopic(t.id);
-                    const left = Math.max(0, MAX_GROUPS_PER_TOPIC - used);
+                    const left = Math.max(0, limit - used);
                     const full = left === 0;
+
 
                     return `
                       <div class="menu-card" style="min-height:220px; opacity:${full?'.80':'1'}" onclick="startTopicForGroup('${t.id}')">
@@ -854,7 +864,7 @@
                         <h3 style="margin-bottom:6px">${t.name}</h3>
                         <p style="margin-bottom:10px">Pilih topik ini untuk kelompok.</p>
                         <div class="muted" style="margin-bottom:12px; font-weight:900;">
-                          Slot: <b>${used}/${MAX_GROUPS_PER_TOPIC}</b> ${full ? '• (Penuh)' : `• sisa ${left}`}
+                          Slot: <b>${used}/${limit}</b> ${full ? '• (Penuh)' : `• sisa ${left}`}
                         </div>
                         <button class="btn cta" data-topic-pick-btn="1" ${full ? 'disabled style="opacity:.6;cursor:not-allowed"' : ''}>Pilih</button>
                       </div>
@@ -1257,13 +1267,13 @@
         return;
       }
 
-      // ✅ (BARU) cek kuota topik: max 3 kelompok (kecuali grup ini sudah pilih topik yang sama)
+      const limit = TOPIC_GROUP_LIMITS[topicId] ?? MAX_GROUPS_PER_TOPIC;
       const usedCount = countGroupsPickingTopic(topicId);
       const alreadyThisTopic = (g.picked_topic === topicId);
 
-      if(!alreadyThisTopic && usedCount >= MAX_GROUPS_PER_TOPIC){
+      if(!alreadyThisTopic && usedCount >= limit){
         const tName = topics.find(x=>x.id===topicId)?.name || topicId;
-        showToast(`Topik "${tName}" sudah penuh (maks ${MAX_GROUPS_PER_TOPIC} kelompok). Pilih topik lain.`);
+        showToast(`Topik "${tName}" sudah penuh (maks ${limit} kelompok). Pilih topik lain.`);
         return;
       }
 
