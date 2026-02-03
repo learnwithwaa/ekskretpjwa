@@ -528,7 +528,6 @@
       try{
         const res = await fetch(SHEET_API_URL, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
 
@@ -548,6 +547,75 @@
       }catch(err){
         console.warn("Gagal kirim ke Sheet:", err);
         return { ok:false, error:String(err) };
+      }
+    }
+
+    async function syncFromSheet(){
+      try{
+        const url = `${SHEET_API_URL}?token=${encodeURIComponent(SHEET_TOKEN)}`;
+        const res = await fetch(url);
+        const json = await res.json();
+
+        if(!json.ok) throw new Error(json.error || "sync failed");
+
+        const rows = json.rows || [];
+        const newState = { groups:{} };
+
+        for(const r of rows){
+          const group = r.group || "";
+          const topicId = (r.topicId || "").toLowerCase();
+          const boxId = r.boxId || "";
+          const correct = String(r.correct).toLowerCase() === "true";
+          const attempts = Number(r.attempts || 0);
+          const timeTakenMs = Number(r.timeTakenMs || 0);
+          const answer = r.answer || "";
+
+          if(!group) continue;
+
+          if(!newState.groups[group]){
+            newState.groups[group] = {
+              picked_topic: topicId || null,
+              topics: {},
+              total_correct: 0,
+              total_time: 0,
+              last_updated: Date.now()
+            };
+          }
+
+          const g = newState.groups[group];
+
+          if(topicId){
+            g.picked_topic = g.picked_topic || topicId;
+
+            if(!g.topics[topicId]) g.topics[topicId] = { cases:{}, picked_box: null };
+            if(boxId) g.topics[topicId].picked_box = g.topics[topicId].picked_box || boxId;
+
+            if(boxId){
+              g.topics[topicId].cases[boxId] = {
+                correct,
+                attempts,
+                answer,
+                time_taken: timeTakenMs,
+                timestamp: Date.now(),
+                startedAt: Date.now()
+              };
+            }
+          }
+
+          const topic = g.picked_topic;
+          if(topic){
+            const cases = g.topics?.[topic]?.cases || {};
+            g.total_correct = Object.values(cases).filter(x=>x.correct).length;
+            g.total_time = Object.values(cases).reduce((s,x)=>s+(x.time_taken||0),0);
+          }
+        }
+
+        gameState = newState;
+        saveGame();       // optional cache
+        renderPage();
+      }catch(err){
+        console.warn(err);
+        showToast("❌ Sync gagal: " + err.message);
       }
     }
 
@@ -1700,9 +1768,12 @@
 
     loadTeacherSession();
     loadGame();
-    loadSelectedGroup(); // ✅ (BARU) auto ingat pilihan kelompok
+    loadSelectedGroup();
+    syncFromSheet();      // ✅ ambil data pusat dari sheet
     renderPage();
+
+    setInterval(syncFromSheet, 5000); // ✅ refresh tiap 5 detik
+
   </script>
 </body>
 </html>
-
