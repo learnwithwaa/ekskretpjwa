@@ -528,6 +528,7 @@
       try{
         const res = await fetch(SHEET_API_URL, {
           method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
 
@@ -611,8 +612,13 @@
         }
 
         gameState = newState;
-        saveGame();       // optional cache
-        renderPage();
+        saveGame();
+
+        // ✅ render ulang cuma kalau lagi di halaman yang aman
+        if (currentPage === 'ranking' || currentPage === 'admin' || currentPage === 'menu') {
+          renderPage();
+        }
+
       }catch(err){
         console.warn(err);
         showToast("❌ Sync gagal: " + err.message);
