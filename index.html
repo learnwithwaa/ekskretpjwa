@@ -455,24 +455,17 @@
       kulit: 3
     };
 
-    // ===============================
-    // 2) LOGIN GURU
-    // ===============================
     const TEACHER_USERNAME = 'minwaa';
     const TEACHER_PASSWORD = 'bismillahlancar';
     const TEACHER_SESSION_KEY = 'excretix_teacher_session';
 
-    // ===============================
-    // 3) STORAGE KEY
-    // ===============================
     const STORE_GAME_KEY = 'excretix_v2_game';
 
-    // ✅ (BARU) simpan pilihan kelompok di halaman TOPIK
     const STORE_SELECTED_GROUP_KEY = 'excretix_selected_group';
 
-    // ===============================
-    // 4) STATE
-    // ===============================
+    const STORE_RESET_AT_KEY = 'excretix_reset_at';
+
+
     let currentPage = 'home';
     let selectedTopic = null;
     let selectedBox = null; // ✅ (BARU) A/B/C yang dipilih kelompok (1 saja)
@@ -494,9 +487,6 @@
       { id: 'kulit', name: 'Kulit', icon: '🤲' }
     ];
 
-    // ===============================
-    // 5) UTIL
-    // ===============================
     function escapeHtml(str){
       return String(str)
         .replaceAll('&','&amp;')
@@ -522,6 +512,28 @@
         .replace(/[^a-z0-9\s]/g, ' ')
         .replace(/\s+/g, ' ')
         .trim();
+    }
+
+    function checkGlobalReset(resetAt){
+      const last = Number(localStorage.getItem(STORE_RESET_AT_KEY) || 0);
+
+      if(Number(resetAt || 0) > last){
+        // hapus data lokal
+        localStorage.removeItem(STORE_GAME_KEY);
+        localStorage.removeItem(STORE_SELECTED_GROUP_KEY);
+
+        // simpan resetAt terbaru
+        localStorage.setItem(STORE_RESET_AT_KEY, String(resetAt));
+
+        // reset state runtime
+        gameState = { groups:{} };
+        selectedGroup = null;
+        selectedTopic = null;
+        selectedBox = null;
+
+        showToast("🔄 Game direset oleh guru");
+        navigateTo('home');
+      }
     }
 
     async function sendToSheet(payload){
@@ -551,6 +563,8 @@
         const url = `${SHEET_API_URL}?token=${encodeURIComponent(SHEET_TOKEN)}`;
         const res = await fetch(url);
         const json = await res.json();
+
+        checkGlobalReset(json.resetAt);
 
         if(!json.ok) throw new Error(json.error || "sync failed");
 
